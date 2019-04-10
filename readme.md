@@ -4,7 +4,7 @@
 
 * Create an activate a virtualenv using python3
   * I like to use virtualenvwrapper
-  * `makvirtualenv -p \`which python3\` venv`
+  * `mkvirtualenv -p \`which python3\` venv`
   * `setvirtualenvproject`
 * Install requirements: `pip install -r requirements.txt`
 * The easiest way to use each tool is to cd into its directory before calling
@@ -35,4 +35,4 @@ templates.
 * Define custom text bits in a yaml file (see `flavortext-example.yaml`)
 * Use `populate.py` to quickly generate complete text files with custom text
     included.
-* (Optional) Render markdown to pdf with pandoc
+* Afterward, I like to render markdown to pdf using pandoc
