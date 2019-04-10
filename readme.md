@@ -4,7 +4,7 @@
 
 * Create an activate a virtualenv using python3
   * I like to use virtualenvwrapper
-  * `mkvirtualenv -p \`which python3\` venv`
+  * `mkvirtualenv -p $(which python3) venv`
   * `setvirtualenvproject`
 * Install requirements: `pip install -r requirements.txt`
 * The easiest way to use each tool is to cd into its directory before calling
