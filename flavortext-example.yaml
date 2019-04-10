@@ -1,0 +1,36 @@
+Bonds-Free:
+  1: |
+    Your hands are bound tightly by strong cord, but there seems to be
+    something wrong with your shoulder: it floats with a sickly pain at your
+    side, and seems to slide forward and backward of its own accord. Although
+    it nearly makes you retch inside your hood to do so, you are able to
+    contort your arm into
+    a wholly unnatural position behind your back, which loosens your wrist ties
+    enough to pull your good arm free.
+  2: |
+    You find that your hands are free; the cord that once bound them has been
+    broken, and slowly unravels around your wrists. However, your hands are
+    numb from long hours having been deprived of circulation. It will take you
+    some time to work feeling back into them.
+  3: |
+    Though your hands are bound, the cord is loose around your wrists. After a
+    moments' writhing, you are able to free one hand.
+  4: |
+    Your hands are bound tightly by strong cord. However, as you move
+    tentatively about, still blinded by your hood, your hip bumps against
+    something thin and hard: a dagger in its scabbard, evidently still attached
+    to the belt of some unknown, unmoving body. Gingerly, moving as little as
+    possible, you manage to draw the dagger from its sheath, and set about
+    the slow task of cutting your bonds. Just when you are nearly through, an
+    ambient popping sound startles you. Your body jerks involuntarily, and you
+    stab yourself with the dagger. The silver lining, though: your hands are
+    now free.
+Past:
+  1: |
+    You have a past of some kind.
+  2: |
+    Who knows who you were back then.
+  3: |
+    You were a winner. But that's all over now.
+  4: |
+    You were never any good.
