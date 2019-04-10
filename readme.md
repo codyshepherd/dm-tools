@@ -7,6 +7,22 @@
   * `makvirtualenv -p \`which python3\` venv`
   * `setvirtualenvproject`
 * Install requirements: `pip install -r requirements.txt`
+* The easiest way to use each tool is to cd into its directory before calling
+
+## live-game
+A tool for live tracking of a play session.
+
+Note: This tool is 'working,' but is a work in progress.
+
+* Define characters in a yaml file (formatted like `yamls/pcs.yaml`)
+* Use `live-game.py` to print these definitions in a more readable format
+
+### Future Goals
+- [ ] runtime with command prompt to track session
+- [ ] live update character HP, Conditions, and Inventories
+- [ ] set initiative / sort characters by initiative
+- [ ] roll dice
+- [ ] ingest monster file and generate random encounter by CR 
 
 ## populate
 A tool for inserting player- or situation-specific text into document
