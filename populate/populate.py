@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 import click
+import os.path as path
 import yaml
 
 
 @click.command()
 @click.argument('target', type=click.Path(exists=True))
 @click.argument('source-yaml', type=click.Path(exists=True))
-def populate(target, source_yaml):
+@click.option('-d', '--destination', type=click.Path(exists=True),
+              help="The directory you want the finished files written to")
+def populate(target, source_yaml, destination):
     '''
     This script's purpose is to replace [fill-keys] in the target text
     with the corresponding text from from the source yaml file. It then
@@ -24,7 +27,13 @@ def populate(target, source_yaml):
     with open(target, 'r') as fh:
         dest = fh.read()
 
-    filename = '{}-'+target
+    basename = path.basename(target)
+    if destination is None:
+        directory = path.dirname(target)
+    else:
+        directory = destination
+    prefix, file_type = tuple(basename.split('.', 2))
+    filename = prefix + '-{}.' + file_type
     copies = {}
     # Loop over all the fill keys
     for fill_key in src.keys():
@@ -44,10 +53,11 @@ def populate(target, source_yaml):
                                                     src[fill_key][item])
 
     # Write out all versions
-    for item in range(len(copies.keys())):
-        index = item+1
-        with open(filename.format(str(index)), 'w+') as fh:
-            fh.write(copies[index])
+    for item in copies.keys():
+        formatted = filename.format(str(item))
+        fullpath = directory + '/' + formatted
+        with open(fullpath, 'w+') as fh:
+            fh.write(copies[item])
 
     print("Done.")
 
