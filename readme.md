@@ -24,6 +24,24 @@ Note: This tool is 'working,' but is a work in progress.
 - [ ] roll dice
 - [ ] ingest monster file and generate random encounter by CR 
 
+## plebs
+Call this script to generate an arbitary number of NPCs from arbitrary races.
+
+Current produces:
+- age
+- name (very american-sounding names, sorry)
+- race
+- stats (D&D 5e standard stats)
+- hp
+
+### Goals
+[ ] Adjustments of stats and hp for races
+[ ] Allow modifiers
+[ ] Better names
+[ ] Occupations
+[ ] Items carried
+[ ] Attack & defense capabilities
+
 ## populate
 A tool for inserting player- or situation-specific text into document
 templates.

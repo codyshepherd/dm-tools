@@ -37,6 +37,11 @@ def gen_age(**kwargs):
     return random.randint(youngest, oldest)
 
 
+def gen_hp(**kwargs):
+    hit_die = kwargs.get('hit_die', (1, 6))
+    return reduce(lambda x, y: x+y, roll(*hit_die), 0)
+
+
 def gen_name(**kwargs):
     return names.get_full_name()
 
@@ -59,6 +64,7 @@ ATTRIBUTES = {
     "name": gen_name,
     "race": return_race,
     "age": gen_age,
+    "HP": gen_hp,
 }
 
 
