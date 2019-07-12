@@ -26,13 +26,16 @@ Note: This tool is 'working,' but is a work in progress.
 
 ## plebs
 Call this script to generate an arbitary number of NPCs from arbitrary races.
+The generator can be configured by passing an alternate config.yaml, with
+`default-config.yaml` as an example.
 
-Current produces:
+Currently produces:
 - age
 - name (very american-sounding names, sorry)
 - race
 - stats (D&D 5e standard stats)
 - hp
+- gender
 
 ### Goals
 [ ] Adjustments of stats and hp for races

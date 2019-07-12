@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import click
 import names
+import numpy
 import pprint
 import random
 import yaml
@@ -18,23 +19,26 @@ STATS = [
     "cha",
 ]
 
-DEFAULT_RACES = [
-    'Dragonborn',
-    'Dwarf',
-    'Elf',
-    'Gnome',
-    'Half-elf',
-    'Halfling',
-    'Half-Orc',
-    'Human',
-    'Tiefling',
-]
-
 
 def gen_age(**kwargs):
     youngest = kwargs.get('youngest', 16)
-    oldest = kwargs.get('oldest', 80)
+    oldest = kwargs.get('oldest', 45)
     return random.randint(youngest, oldest)
+
+
+def gen_gender(**kwargs):
+    set_gender = kwargs.get('gender', None)
+    if set_gender is not None:
+        print(f"gender already set in gen_gender: {set_gender}")
+        return set_gender
+    print("no gender set yet in gen_gender")
+    genders_tuples = kwargs.get('genders', [('male', .5), ('female', .5)])
+    genders = [t[0] for t in genders_tuples]
+    probs = [t[1] for t in genders_tuples]
+
+    choice = numpy.random.choice(genders, p=probs)
+    print(f"gender choice: {choice}")
+    return choice
 
 
 def gen_hp(**kwargs):
@@ -43,7 +47,19 @@ def gen_hp(**kwargs):
 
 
 def gen_name(**kwargs):
-    return names.get_full_name()
+    g = kwargs.get('gender', None)
+    if g is None:
+        print("Gender not set, calling gen_gender")
+        g = gen_gender(**kwargs)
+
+    if g in ['male', 'female']:
+        print(f"Gender set: {g}")
+        gender_arg = g
+    else:
+        gender_arg = None
+
+    print(f"generating name with gender_arg: {gender_arg}")
+    return names.get_full_name(gender=gender_arg)
 
 
 def return_race(**kwargs):
@@ -59,23 +75,14 @@ def gen_stats(**kwargs):
     return stats
 
 
-ATTRIBUTES = {
-    "stats": gen_stats,
-    "name": gen_name,
-    "race": return_race,
-    "age": gen_age,
-    "HP": gen_hp,
-}
-
-
-def pleb(race, gender):
-    kwargs = {
-        'race': race,
-        'gender': gender,
-    }
+def pleb(race, **kwargs):
+    kwargs['race'] = race
     p = {}
     for attr in ATTRIBUTES.keys():
-        p[attr] = ATTRIBUTES[attr](**kwargs)
+        func = globals()[ATTRIBUTES[attr]]
+        val = func(**kwargs)
+        kwargs[attr] = val
+        p[attr] = val
     return p
 
 
@@ -84,17 +91,26 @@ def pleb(race, gender):
 # @click.argument('source-yaml', type=click.Path(exists=True))
 @click.option('-n', '--number', type=int,
               help="The number of plebs to create", default=1)
-@click.option('-r', '--races', type=str,
-              help="Space separated list of races for plebs",
-              default=' '.join(DEFAULT_RACES))
+@click.option('-c', '--config-yaml', type=click.Path(exists=True),
+              help="The path to a yaml config file",
+              default='default-config.yaml')
 @click.option('-y', '--yaml-dump', is_flag=True,
               help="Dump to yaml")
-def plebs(number, races, yaml_dump):
+def plebs(number, config_yaml, yaml_dump):
+    with open(config_yaml, 'r') as fh:
+        config = yaml.load(fh)
+
+    global ATTRIBUTES
+    ATTRIBUTES = config['attributes']
+
+    races_and_probs = config.get('races', ['Human', 1.0])
+    races = [r[0] for r in races_and_probs]
+    probs = [r[1] for r in races_and_probs]
+
     ps = {}
-    races_list = races.split()
     for i in range(number):
-        race_num = random.randint(0, len(races_list)-1)
-        p = pleb(races_list[race_num], None)
+        race = numpy.random.choice(races, p=probs)
+        p = pleb(race, **config)
         ps[p['name']] = p
     if yaml_dump:
         with open('plebs.yaml', 'w+') as fh:

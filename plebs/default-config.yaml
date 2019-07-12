@@ -1,0 +1,23 @@
+attributes:             # The attributes section is mandatory and should
+  age: 'gen_age'        # probably just be a copy of this unless you write
+  gender: 'gen_gender'  # your own generator functions
+  hp: 'gen_hp'
+  name: 'gen_name'
+  race: 'return_race'
+  stats: 'gen_stats'
+races:                  # A list of races and their probabilities summing to 1
+  - ['Dragonborn', .11]
+  - ['Dwarf', .11]
+  - ['Elf', .11]
+  - ['Gnome', .11]
+  - ['Half-elf', .11]
+  - ['Halfling', .11]
+  - ['Half-Orc', .11]
+  - ['Human', .12]
+  - ['Tiefling', .11]
+genders:                # a list of genders with their probabilities summing
+  - ['male', .5]        # to 1
+  - ['female', .5]
+youngest: 16
+oldest: 45
+hit_die: [1,10] # the hit dice of your NPCs, in this case 1d10
