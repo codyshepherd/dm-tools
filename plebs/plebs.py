@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 import click
-import names
 import numpy
 import pprint
 import random
 import yaml
 
+from name_gen import name_gen
 from dice import roll
 from functools import reduce
 
@@ -59,7 +59,11 @@ def gen_name(**kwargs):
         gender_arg = None
 
     print(f"generating name with gender_arg: {gender_arg}")
-    return names.get_full_name(gender=gender_arg)
+    # return names.get_full_name(gender=gender_arg)
+    name = ' '.join([name_gen.name_gen(), name_gen.name_gen()])
+    with open('names_generated.txt', 'a+') as fh:
+        fh.write(name + '\n')
+    return name
 
 
 def return_race(**kwargs):
