@@ -20,4 +20,4 @@ genders:                # a list of genders with their probabilities summing
   - ['female', .5]
 youngest: 16
 oldest: 45
-hit_die: [1,10] # the hit dice of your NPCs, in this case 1d10
+hit_die: [4,4] # the hit dice of your NPCs, in this case 4d4

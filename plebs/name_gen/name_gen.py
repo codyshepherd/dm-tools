@@ -2,15 +2,52 @@ import numpy
 import random
 import re
 import string
+import yaml
 
 VOWELS = ('a', 'e', 'i', 'o', 'u', 'y')
 CONSONANTS = tuple(l for l in string.ascii_lowercase if l not in VOWELS)
+LETTER_TYPES = (VOWELS, CONSONANTS)
 
 
-def name_gen():
+def name_gen_prob(max_len=10):
+    print("name_gen")
+    name = []
+    name_len = random.randint(3, max_len)
+
+    with open('name_gen/probs.yaml', 'r') as fh:
+        probs = yaml.safe_load(fh)
+
+    letters = list(probs.keys())
+    dist = list(probs.values())
+    sumdist = sum(dist)
+    diff = 1.0 - sumdist
+    dist[16] += diff    # add any residual required probability to q, for that
+                        # fantasy name panache
+
+    while len(name) < name_len:
+        name.append(numpy.random.choice(letters, p=dist))
+
+    return ''.join(name).capitalize()
+
+
+def name_gen_pairs(max_len=10):
+    print("name_gen_pairs")
+    name = []
+    name_len = random.randint(3, max_len)
+    order = list(range(len(LETTER_TYPES)))
+
+    while len(name) < name_len:
+        random.shuffle(order)
+        for i in order:
+            name.append(numpy.random.choice(LETTER_TYPES[i]))
+
+    return ''.join(name).capitalize()
+
+
+def name_gen_alternator(max_len=10):
+    print("name_gen_alternator")
     name = ''
-    name_len = random.randint(3, 10)
-    print(f"Name len: {name_len}")
+    name_len = random.randint(3, max_len)
 
     init_cons_prob = .25
     init_v_prob = .75
@@ -24,7 +61,6 @@ def name_gen():
         choice = numpy.random.choice([VOWELS, CONSONANTS],
                                      p=[v_prob, cons_prob])
         letter = numpy.random.choice(list(choice))
-        print(f"Chose letter: {letter}")
         name += letter
 
         last_letter = name[-1]
@@ -35,7 +71,6 @@ def name_gen():
         if last_letter in VOWELS:
             cons_seq_len = 0
             seq = re.search(v_seq_regex, name).group(0)
-            print(f"regex seq: {seq}")
 
             v_seq_len = len(seq)
 
@@ -50,7 +85,6 @@ def name_gen():
             v_seq_len = 0
 
             seq = re.search(cons_seq_regex, name).group(0)
-            print(f"regex seq: {seq}")
 
             cons_seq_len = len(seq)
 
@@ -61,11 +95,7 @@ def name_gen():
                 v_prob = init_v_prob
                 cons_prob = init_cons_prob
 
-
-        print(v_prob, cons_prob)
-        print(name)
-
-    return name
+    return name.capitalize()
 
 
 if __name__ == "__main__":

@@ -29,15 +29,12 @@ def gen_age(**kwargs):
 def gen_gender(**kwargs):
     set_gender = kwargs.get('gender', None)
     if set_gender is not None:
-        print(f"gender already set in gen_gender: {set_gender}")
         return set_gender
-    print("no gender set yet in gen_gender")
     genders_tuples = kwargs.get('genders', [('male', .5), ('female', .5)])
     genders = [t[0] for t in genders_tuples]
     probs = [t[1] for t in genders_tuples]
 
     choice = numpy.random.choice(genders, p=probs)
-    print(f"gender choice: {choice}")
     return choice
 
 
@@ -47,22 +44,20 @@ def gen_hp(**kwargs):
 
 
 def gen_name(**kwargs):
-    g = kwargs.get('gender', None)
-    if g is None:
-        print("Gender not set, calling gen_gender")
-        g = gen_gender(**kwargs)
+    name_gen_function = name_gen.name_gen_prob
 
-    if g in ['male', 'female']:
-        print(f"Gender set: {g}")
-        gender_arg = g
-    else:
-        gender_arg = None
+    gen = kwargs.get('name_generator', 'prob')
 
-    print(f"generating name with gender_arg: {gender_arg}")
-    # return names.get_full_name(gender=gender_arg)
-    name = ' '.join([name_gen.name_gen(), name_gen.name_gen()])
+    if gen == 'pairs':
+        name_gen_function = name_gen.name_gen_pairs
+    elif gen == 'alt':
+        name_gen_function = name_gen.name_gen_alternator
+
+    name = ' '.join([name_gen_function(), name_gen_function()])
+
     with open('names_generated.txt', 'a+') as fh:
         fh.write(name + '\n')
+
     return name
 
 
@@ -100,9 +95,15 @@ def pleb(race, **kwargs):
               default='default-config.yaml')
 @click.option('-y', '--yaml-dump', is_flag=True,
               help="Dump to yaml")
-def plebs(number, config_yaml, yaml_dump):
+@click.option('-g', '--name-generator',
+              type=click.Choice(['prob', 'pairs', 'alt']),
+              help="The algorithm to use for generating names",
+              default='prob')
+def plebs(number, config_yaml, yaml_dump, name_generator):
     with open(config_yaml, 'r') as fh:
-        config = yaml.load(fh)
+        config = yaml.safe_load(fh)
+
+    config['name_generator'] = name_generator
 
     global ATTRIBUTES
     ATTRIBUTES = config['attributes']
