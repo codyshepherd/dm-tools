@@ -10,9 +10,7 @@
 * The easiest way to use each tool is to cd into its directory before calling
 
 ## live-game
-A tool for live tracking of a play session.
-
-Note: This tool is 'working,' but is a work in progress.
+A tool for tracking of a play session. Not currently live.
 
 * Define characters in a yaml file (formatted like `yamls/pcs.yaml`)
 * Use `live-game.py` to print these definitions in a more readable format
@@ -29,21 +27,26 @@ Call this script to generate an arbitary number of NPCs from arbitrary races.
 The generator can be configured by passing an alternate config.yaml, with
 `default-config.yaml` as an example.
 
-Currently produces:
+This tool is best used by cd-ing into the `plebs/` directory and then calling
+`./plebs.py` with options.
+
+See available options with `./plebs --help`.
+
+Currently produces the following stats for a given NPC:
 - age
-- name (very american-sounding names, sorry)
+- name
 - race
 - stats (D&D 5e standard stats)
 - hp
 - gender
 
 ### Goals
-[ ] Adjustments of stats and hp for races
-[ ] Allow modifiers
-[ ] Better names
-[ ] Occupations
-[ ] Items carried
-[ ] Attack & defense capabilities
+- [ ] Adjustments of stats and hp for races
+- [ ] Allow modifiers
+- [x] Better names
+- [ ] Occupations
+- [ ] Items carried
+- [ ] Attack & defense capabilities
 
 ## populate
 A tool for inserting player- or situation-specific text into document
