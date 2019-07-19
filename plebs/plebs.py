@@ -8,6 +8,7 @@ import yaml
 from name_gen import name_gen
 from dice import roll
 from functools import reduce
+from itertools import chain
 
 
 STATS = [
@@ -48,12 +49,20 @@ def gen_name(**kwargs):
 
     gen = kwargs.get('name_generator', 'prob')
 
-    if gen == 'pairs':
-        name_gen_function = name_gen.name_gen_pairs
-    elif gen == 'alt':
+    if gen == 'alt':
         name_gen_function = name_gen.name_gen_alternator
+    elif gen == 'norm':
+        name_gen_function = name_gen.name_gen_normcore
+    elif gen == 'pairs':
+        name_gen_function = name_gen.name_gen_pairs
 
-    name = ' '.join([name_gen_function(), name_gen_function()])
+    fn = {'first_last': 'first'}
+    ln = {'first_last': 'last'}
+
+    name = ' '.join(
+        [name_gen_function(**dict(chain(kwargs.items(), fn.items()))),
+         name_gen_function(**dict(chain(kwargs.items(), ln.items())))]
+    )
 
     with open('names_generated.txt', 'a+') as fh:
         fh.write(name + '\n')
@@ -96,7 +105,7 @@ def pleb(race, **kwargs):
 @click.option('-y', '--yaml-dump', is_flag=True,
               help="Dump to yaml")
 @click.option('-g', '--name-generator',
-              type=click.Choice(['prob', 'pairs', 'alt']),
+              type=click.Choice(['alt', 'norm', 'pairs', 'prob']),
               help="The algorithm to use for generating names",
               default='prob')
 def plebs(number, config_yaml, yaml_dump, name_generator):

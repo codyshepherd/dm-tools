@@ -1,3 +1,4 @@
+import names
 import numpy
 import random
 import re
@@ -9,7 +10,22 @@ CONSONANTS = tuple(l for l in string.ascii_lowercase if l not in VOWELS)
 LETTER_TYPES = (VOWELS, CONSONANTS)
 
 
-def name_gen_prob(max_len=10):
+def name_gen_normcore(**kwargs):
+    gender = kwargs.get('gender', random.choice(['male', 'female']))
+
+    first_last = kwargs.get('first_last', 'first')
+
+    funcname = f"get_{first_last}_name"
+    func = getattr(names, funcname)
+
+    if first_last == 'first':
+        return func(gender=gender)
+    else:
+        return func()
+
+
+def name_gen_prob(**kwargs):
+    max_len = kwargs.get('max_len', 10)
     print("name_gen")
     name = []
     name_len = random.randint(3, max_len)
@@ -30,7 +46,8 @@ def name_gen_prob(max_len=10):
     return ''.join(name).capitalize()
 
 
-def name_gen_pairs(max_len=10):
+def name_gen_pairs(**kwargs):
+    max_len = kwargs.get('max_len', 10)
     print("name_gen_pairs")
     name = []
     name_len = random.randint(3, max_len)
@@ -44,7 +61,8 @@ def name_gen_pairs(max_len=10):
     return ''.join(name).capitalize()
 
 
-def name_gen_alternator(max_len=10):
+def name_gen_alternator(**kwargs):
+    max_len = kwargs.get('max_len', 10)
     print("name_gen_alternator")
     name = ''
     name_len = random.randint(3, max_len)
