@@ -10,15 +10,28 @@
 * The easiest way to use each tool is to cd into its directory before calling
 
 ## live-game
-A tool for tracking of a play session. Not currently live.
+A tool for tracking of a play session.
+
+Currently supports displaying loaded characters' positions in iniative order,
+setting initiative, and cycling through initiative.
 
 * Define characters in a yaml file (formatted like `yamls/pcs.yaml`)
-* Use `live-game.py` to print these definitions in a more readable format
+* Use 'live-game.py' to show the status of these characters
+
+### Live-Game commands
+
+Enter command mode: `c`
+* `i <expr> <int>` sets initiative for one or more characters matched by the
+  regular expression \<expr\>
+* `s` sorts the players in descending order by initiative
+
+Cycle Initiative: `n`
+
 
 ### Future Goals
-- [ ] runtime with command prompt to track session
+- [x] runtime with command prompt to track session
 - [ ] live update character HP, Conditions, and Inventories
-- [ ] set initiative / sort characters by initiative
+- [x] set initiative / sort characters by initiative
 - [ ] roll dice
 - [ ] ingest monster file and generate random encounter by CR 
 
