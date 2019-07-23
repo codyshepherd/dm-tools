@@ -2,7 +2,6 @@
 
 import click
 import curses
-import re
 
 from game.game import Game
 
@@ -10,14 +9,17 @@ YAML_DIR = 'yamls'
 MAX_BUFFER_LEN = 128
 GAME_STATE = None
 
-HANDLERS = {
-    'c': lambda x: handle_command(x),
-    'n': lambda x: handle_next(x),
-}
+NAV_KEYS = [
+    'KEY_UP',
+    'KEY_DOWN',
+    'KEY_RIGHT',
+    'KEY_LEFT',
+]
 
 COMMANDS = {
-    'i': lambda x: set_initiative(x),
-    's': lambda x: sort_init_list(x),
+    'Set Initiative': lambda x: set_initiative(x),
+    'Cycle Initiative': lambda x: handle_next(x),
+    'Sort Initiative': lambda x: sort_init_list(x),
 }
 
 
@@ -49,41 +51,38 @@ def start(pcs, yaml_dir):
         curses.endwin()
 
 
+def max_len_append(new_item, the_list, max_len):
+    ln = len(the_list)
+    diff = max_len - ln
+    if diff <= 0:
+        the_list = the_list[diff+1:]
+    return the_list.append(new_item)
+
+
 def handle_next(screen):
     GAME_STATE.next_initiative()
-    return 'n'
+    return 'next'
 
 
-def sort_init_list(argslist):
-    if len(argslist) < 1:
-        return
-
+def sort_init_list(screen):
     GAME_STATE.sort_init_list()
+    return 'descending'
 
 
-def set_initiative(argslist):
-    if len(argslist) < 3:
+def set_initiative(window):
+    argslist = get_input(window, 1, 1).split()
+
+    if len(argslist) < 2:
         return
 
-    name_exp = argslist[1]
-    init_val = argslist[-1]
+    name_exp = argslist[0]
+    init_val = argslist[1]
     GAME_STATE.set_initiative(name_exp, init_val)
-
-
-def handle_command(screen):
-    render_input_panel(screen)
-    raw = get_input(screen, 1, 1)
-    st = raw.split()
-    if len(st) < 1:
-        return ''
-    cmd = st[0]
-    if cmd in COMMANDS.keys():
-        COMMANDS[cmd](st)
-        return raw
-    return ''
+    return ' '.join(argslist)
 
 
 def get_input(screen, y, x):
+    screen.move(1, 1)
     c = screen.getkey()
     ret = ''
     while c != '\n' and len(ret) < MAX_BUFFER_LEN:
@@ -91,10 +90,24 @@ def get_input(screen, y, x):
             ret = ret[:-1]
         else:
             ret += c
-        screen.clear()
         screen.addstr(y, x, ret)
         c = screen.getkey()
+        render_input_panel(screen)
     return ret
+
+
+def render_box_highlight_text(box, height, width, title, strings, index):
+    box.clear()
+    box.box()
+    box.addstr(1, 2, title)
+    box.addstr(2, 1, ''.join('-' for i in range(width-2)))
+    start = 4
+    for i, string in enumerate(strings):
+        if i == index:
+            box.addstr(start, 2, string, curses.A_STANDOUT)
+        else:
+            box.addstr(start, 2, string)
+        start += 1
 
 
 def render_box(box, height, width, title, strings):
@@ -111,7 +124,6 @@ def render_box(box, height, width, title, strings):
 def render_input_panel(panel):
     panel.clear()
     panel.box()
-    panel.move(1, 1)
 
 
 def main(stdscr, pcs, yaml_dir):
@@ -121,7 +133,6 @@ def main(stdscr, pcs, yaml_dir):
 
     global GAME_STATE
     GAME_STATE = Game(**kwargs)
-    cmd_log = []
 
     stdscr.border(0)
     height, width = stdscr.getmaxyx()
@@ -130,31 +141,62 @@ def main(stdscr, pcs, yaml_dir):
     global MAX_BUFFER_LEN
     MAX_BUFFER_LEN = width
 
-    input_panel = curses.newwin(3, width, height, 0)
+    input_panel = curses.newwin(3, width, height-1, 0)
     input_panel.keypad(True)
 
     box1_width = 40
     box1 = curses.newwin(height-2, box1_width, 0, 0)
     box1.immedok(True)
 
+    cmds_list = list(COMMANDS.keys())
+    cursor_index = 0
     box2_width = 40
     box2 = curses.newwin(height-2, box1_width, 0, box1_width+1)
     box2.immedok(True)
+    box2.keypad(True)
 
-    stdscr.clear()
+    keystrokes_list = []
+    key_list_max_len = height-8
+    box3_width = 40
+    box3 = curses.newwin(height-2, box1_width, 0, (box1_width*2)+1)
+    box3.immedok(True)
+
+    def navkey_to_index(keystroke):
+        if keystroke == 'KEY_UP' and cursor_index <= 0:
+            return len(cmds_list)-1
+        elif keystroke == 'KEY_DOWN' and cursor_index >= len(cmds_list)-1:
+            return 0
+        elif keystroke == 'KEY_UP':
+            return cursor_index - 1
+        elif keystroke == 'KEY_DOWN':
+            return cursor_index + 1
+        else:
+            return cursor_index
+
     while True:
         stdscr.clear()
 
         render_input_panel(input_panel)
         render_box(box1, height, box1_width, "Initiative Tracker",
                    GAME_STATE.initiative_list)
-        render_box(box2, height, box2_width, "Commands", cmd_log)
+        render_box_highlight_text(box2, height, box2_width, "Menu",
+                                  cmds_list, cursor_index)
+        render_box(box3, height, box3_width, "Debug Panel",
+                   keystrokes_list)
+
         stdscr.refresh()
-        key = input_panel.getkey()
-        if key in HANDLERS.keys():
-            cmd = HANDLERS[key](input_panel)
-            if cmd != '' or cmd is not None:
-                cmd_log.append(cmd)
+
+        box2.move(4 + cursor_index, 2)
+        key = box2.getkey()
+
+        if key in NAV_KEYS:
+            max_len_append(key, keystrokes_list, key_list_max_len)
+            cursor_index = navkey_to_index(key)
+        elif key == '\n':
+            choice = cmds_list[cursor_index]
+            extra = COMMANDS[choice](input_panel)
+            max_len_append(' '.join([choice, extra]), keystrokes_list,
+                           key_list_max_len)
 
 
 if __name__ == '__main__':
