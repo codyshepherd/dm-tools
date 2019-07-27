@@ -6,6 +6,8 @@ import curses.ascii
 
 from game.game import Game
 
+STDSCR = None
+
 BOX1 = None
 BOX1_TITLE = "Initiative Tracker"
 BOX1_WIDTH = 0
@@ -15,6 +17,7 @@ BOX2_WIDTH = 0
 BOX3 = None
 BOX3_TITLE = "Log"
 BOX3_WIDTH = 0
+HELP_PANEL = None
 INPUT_PANEL = None
 
 BOX_BUFFER_SPACES = 4
@@ -31,6 +34,10 @@ COMMANDS = {
     'Set Initiative': lambda: set_initiative(),
     'Cycle Initiative': lambda: handle_next(),
     'Sort Initiative': lambda: sort_init_list(),
+}
+
+HELP_TEXT = {
+    'Cancel': 'Hit ` to Cancel',        
 }
 
 NAV_KEYS = [
@@ -54,24 +61,38 @@ INIT_CURSOR_INDEX = 0
               file_okay=False, writable=True, readable=True), default='yamls',
               help='path to alternate yaml dir')
 def start(pcs, yaml_dir):
+    global STDSCR
 
     try:
-        stdscr = curses.initscr()
+        STDSCR = curses.initscr()
         curses.start_color()
-        stdscr.immedok(True)
+        STDSCR.immedok(True)
 
         # The following options need to be reversed if they are enabled
-        stdscr.keypad(True)     # curses handles cursor & nav keys
+        STDSCR.keypad(True)     # curses handles cursor & nav keys
         curses.noecho()   # turns off echoing of keys to screen
         curses.cbreak()   # react to keys instantly, don't wait for Enter
 
-        main(stdscr, pcs, yaml_dir)
+        main(pcs, yaml_dir)
     finally:
         # Terminate application
         curses.nocbreak()
         curses.echo()
-        stdscr.keypad(False)
+        STDSCR.keypad(False)
         curses.endwin()
+
+
+def display_help_text(text):
+    if len(text) > MAX_BUFFER_LEN:
+        text = text[:MAX_BUFFER_LEN]
+
+    HELP_PANEL.addstr(0, BOX_PADDING, text, curses.A_STANDOUT)
+    HELP_PANEL.refresh()
+
+
+def clear_help_text():
+    HELP_PANEL.clear()
+    HELP_PANEL.refresh()
 
 
 def add_character():
@@ -85,6 +106,7 @@ def add_character():
 
 def remove_character():
     global INIT_CURSOR_INDEX
+    display_help_text(HELP_TEXT['Cancel'])
     key = navigate(BOX1, BOX1_WIDTH, BOX1_TITLE)
 
     if key == ESC_KEY:
@@ -95,6 +117,7 @@ def remove_character():
 
     GAME_STATE.remove_character(name)
     INIT_CURSOR_INDEX = 0
+    clear_help_text()
     return name
 
 
@@ -138,6 +161,7 @@ def navigate(box, box_width, box_title):
 
 
 def set_initiative():
+    display_help_text(HELP_TEXT['Cancel'])
 
     key = navigate(BOX1, BOX1_WIDTH, BOX1_TITLE)
 
@@ -155,10 +179,13 @@ def set_initiative():
         name = ' '.join(choice.split()[1:])
         GAME_STATE.set_initiative(name, first_item)
 
+    clear_help_text()
     return f'{name} {first_item}'
 
 
 def get_input():
+    display_help_text(HELP_TEXT['Cancel'])
+
     INPUT_PANEL.move(1, 1)
     key = INPUT_PANEL.getkey()
     ret = ''
@@ -225,7 +252,8 @@ def navkey_to_index(keystroke, menu_list, cursor_index):
         return cursor_index
 
 
-def main(stdscr, pcs, yaml_dir):
+def main(pcs, yaml_dir):
+    global STDSCR
     global BOX1
     global BOX1_WIDTH
     global BOX2
@@ -234,6 +262,7 @@ def main(stdscr, pcs, yaml_dir):
     global BOX3_WIDTH
     global GAME_STATE
     global HEIGHT
+    global HELP_PANEL
     global INPUT_PANEL
     global MAX_BUFFER_LEN
     global WIDTH
@@ -244,13 +273,15 @@ def main(stdscr, pcs, yaml_dir):
 
     GAME_STATE = Game(**kwargs)
 
-    HEIGHT, WIDTH = stdscr.getmaxyx()
+    HEIGHT, WIDTH = STDSCR.getmaxyx()
     HEIGHT -= BOX_PADDING
     WIDTH -= BOX_PADDING
     MAX_BUFFER_LEN = WIDTH
     BOX1_WIDTH = (WIDTH // 3) - BOX_PADDING
     BOX2_WIDTH = (WIDTH // 3) - BOX_PADDING
     BOX2_WIDTH = (WIDTH // 3) - BOX_PADDING
+
+    HELP_PANEL = curses.newwin(1, WIDTH, HEIGHT-2, 0)
 
     INPUT_PANEL = curses.newwin(3, WIDTH, HEIGHT-1, 0)
     INPUT_PANEL.keypad(True)
@@ -273,9 +304,7 @@ def main(stdscr, pcs, yaml_dir):
     BOX3.keypad(True)
 
     while True:
-        # stdscr.clear()    # TODO: I'm a bit unsure where these calls should
-        # stdscr.refresh()  # really go to reduce choppiness
-        h, y = stdscr.getmaxyx()
+        h, y = STDSCR.getmaxyx()
         if h != HEIGHT and y != WIDTH:
             HEIGHT, WIDTH = h, y
             HEIGHT -= BOX_PADDING
@@ -285,14 +314,17 @@ def main(stdscr, pcs, yaml_dir):
             BOX2_WIDTH = (WIDTH // 3) - BOX_PADDING
             BOX3_WIDTH = (WIDTH // 3) - BOX_PADDING
 
+            HELP_PANEL.resize(1, WIDTH)
             INPUT_PANEL.resize(3, WIDTH)
             BOX1.resize(HEIGHT-BOX_PADDING, BOX1_WIDTH)
             BOX2.resize(HEIGHT-BOX_PADDING, BOX2_WIDTH)
             BOX3.resize(HEIGHT-BOX_PADDING, BOX3_WIDTH)
+            HELP_PANEL.resize(1, WIDTH)
             INPUT_PANEL.resize(3, WIDTH)
             BOX1.mvwin(0, 0)
             BOX2.mvwin(0, BOX1_WIDTH+1)
             BOX3.mvwin(0, BOX1_WIDTH+BOX2_WIDTH+BOX_PADDING)
+            HELP_PANEL.mvwin(HEIGHT-2, 0)
             INPUT_PANEL.mvwin(HEIGHT-1, 0)
 
         render_box(BOX1, HEIGHT, BOX1_WIDTH, BOX1_TITLE,
@@ -301,6 +333,8 @@ def main(stdscr, pcs, yaml_dir):
                                   cmds_list, cursor_index)
         render_box(BOX3, HEIGHT, BOX3_WIDTH, BOX3_TITLE,
                    keystrokes_list)
+        HELP_PANEL.clear()
+        HELP_PANEL.refresh()
         render_input_panel()
 
         BOX2.move(BOX_BUFFER_SPACES + cursor_index, BOX_PADDING)

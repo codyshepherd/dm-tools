@@ -26,7 +26,8 @@ interactive menu.
 
 * Enter initiative for any character
 * Sort characters by initiative in descending order
-* Cycle through characters
+* Cycle through characters in initiative order
+* Add/remove characters to/from list on the fly
 
 Also features a log of past commands.
 
