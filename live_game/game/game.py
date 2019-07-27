@@ -46,6 +46,32 @@ class Game(object):
             self.pc_names.remove(name)
             self.make_initiative_list()
 
+    def defer_initiative(self):
+        if len(self.initiative_list) < 2:
+            return
+
+        head_init_value = int(self.initiative_list[0].split()[0])
+        next_init_value = int(self.initiative_list[1].split()[0])
+        if head_init_value < next_init_value:
+            return
+
+        end_of_turn_index = 0
+        while head_init_value >= next_init_value:
+            end_of_turn_index += 1
+            head_init_value = int(self.initiative_list[end_of_turn_index].split()[0])
+            if end_of_turn_index+1 < len(self.initiative_list):
+                next_init_value = int(self.initiative_list[end_of_turn_index+1].split()[0])
+            else:
+                next_init_value = 999
+
+        start_next_index = end_of_turn_index + 1
+        head_portion = self.initiative_list[1:start_next_index]
+        tail_portion = []
+        if start_next_index < len(self.initiative_list):
+            tail_portion = self.initiative_list[start_next_index:]
+        new_list = head_portion + [self.initiative_list[0]] + tail_portion
+        self.initiative_list = new_list
+
     def next_initiative(self):
         first = self.initiative_list[0]
         rest = self.initiative_list[1:]

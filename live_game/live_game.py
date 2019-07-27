@@ -33,6 +33,7 @@ COMMANDS = {
     'Remove Character': lambda: remove_character(),
     'Set Initiative': lambda: set_initiative(),
     'Cycle Initiative': lambda: handle_next(),
+    'Defer Initiative': lambda: defer_initiative(),
     'Sort Initiative': lambda: sort_init_list(),
 }
 
@@ -128,6 +129,13 @@ def max_len_append(new_item, the_list, max_len):
         the_list = the_list[diff+1:]
     the_list.append(new_item)
     return the_list
+
+
+def defer_initiative():
+    init_and_name_list = GAME_STATE.initiative_list[0].split()
+    name = ' '.join(init_and_name_list[1:])
+    GAME_STATE.defer_initiative()
+    return name
 
 
 def handle_next():
