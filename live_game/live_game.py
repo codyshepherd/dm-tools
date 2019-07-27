@@ -38,6 +38,7 @@ COMMANDS = {
 }
 
 HELP_TEXT = {
+    'Nav R Cancel': 'Hit ` or -> to Cancel',
     'Cancel': 'Hit ` to Cancel',
 }
 
@@ -87,6 +88,7 @@ def start(pcs, yaml_dir):
 
 
 def display_help_text(text):
+    HELP_PANEL.clear()
     if len(text) > MAX_BUFFER_LEN:
         text = text[:MAX_BUFFER_LEN]
 
@@ -96,6 +98,7 @@ def display_help_text(text):
 
 def clear_help_text():
     HELP_PANEL.clear()
+    HELP_PANEL.addstr(0, BOX_PADDING, '')
     HELP_PANEL.refresh()
 
 
@@ -110,12 +113,12 @@ def add_character():
 
 def remove_character():
     global INIT_CURSOR_INDEX
-    display_help_text(HELP_TEXT['Cancel'])
+    display_help_text(HELP_TEXT['Nav R Cancel'])
     key = ''
     while key not in FINAL_KEYS + RIGHT_LEFT_KEYS[:1]:
         key = navigate(BOX1, BOX1_WIDTH, BOX1_TITLE)
 
-    if key == ESC_KEY or RIGHT_LEFT_KEYS[0]:
+    if key == ESC_KEY or key == RIGHT_LEFT_KEYS[0]:
         return ESC_KEY
 
     init_and_name_list = GAME_STATE.initiative_list[INIT_CURSOR_INDEX].split()
@@ -145,6 +148,7 @@ def defer_initiative():
 
 def handle_next():
     GAME_STATE.next_initiative()
+    BOX1.clear()
     return ' '.join(GAME_STATE.initiative_list[0].split()[1:])
 
 
@@ -174,21 +178,24 @@ def navigate(box, box_width, box_title):
 
 
 def set_initiative():
-    display_help_text(HELP_TEXT['Cancel'])
+    display_help_text(HELP_TEXT['Nav R Cancel'])
 
     key = ''
     while key not in FINAL_KEYS + RIGHT_LEFT_KEYS[:1]:
         key = navigate(BOX1, BOX1_WIDTH, BOX1_TITLE)
 
     if key == ESC_KEY or key == RIGHT_LEFT_KEYS[0]:
+        clear_help_text()
         return ESC_KEY
 
     choice = GAME_STATE.initiative_list[INIT_CURSOR_INDEX]
     items = get_input().split()
     if len(items) < 1:
+        clear_help_text()
         return 'no input'
     first_item = items[0]
     if not first_item.isdigit():
+        clear_help_text()
         return 'non-integer input'
     else:
         name = ' '.join(choice.split()[1:])
@@ -211,8 +218,9 @@ def get_input():
             ret += key
         INPUT_PANEL.addstr(1, 1, ret)
         key = INPUT_PANEL.getkey()
+        INPUT_PANEL.clear()
         render_input_panel()
-    INPUT_PANEL.refresh()
+    clear_help_text()
     if key == ESC_KEY:
         return ''
     return ret
@@ -234,8 +242,8 @@ def render_box_highlight_text(box, height, width, title, strings, index):
 
 
 def render_box(box, height, width, title, strings):
-    box.clear()
-    box.refresh()
+    # box.clear()
+    # box.refresh()
     box.box()
     box.addstr(1, BOX_PADDING, title)
     box.addstr(BOX_PADDING, 1, ''.join('-' for i in range(width-BOX_PADDING)))
@@ -249,9 +257,9 @@ def render_box(box, height, width, title, strings):
 
 
 def render_input_panel():
-    INPUT_PANEL.clear()
+    # INPUT_PANEL.clear()
     INPUT_PANEL.box()
-    INPUT_PANEL.refresh()
+    # INPUT_PANEL.refresh()
 
 
 def navkey_to_index(keystroke, menu_list, cursor_index):
@@ -299,6 +307,7 @@ def main(pcs, yaml_dir):
     HELP_PANEL = curses.newwin(1, WIDTH, HEIGHT-2, 0)
 
     INPUT_PANEL = curses.newwin(3, WIDTH, HEIGHT-1, 0)
+    INPUT_PANEL.immedok(True)
     INPUT_PANEL.keypad(True)
 
     BOX1 = curses.newwin(HEIGHT-BOX_PADDING, BOX1_WIDTH, 0, 0)
@@ -319,6 +328,7 @@ def main(pcs, yaml_dir):
     BOX3.keypad(True)
 
     while True:
+        STDSCR.refresh()
         h, y = STDSCR.getmaxyx()
         if h != HEIGHT and y != WIDTH:
             HEIGHT, WIDTH = h, y
@@ -333,6 +343,8 @@ def main(pcs, yaml_dir):
             INPUT_PANEL.resize(3, WIDTH)
             BOX1.resize(HEIGHT-BOX_PADDING, BOX1_WIDTH)
             BOX2.resize(HEIGHT-BOX_PADDING, BOX2_WIDTH)
+            BOX2.clear()
+            BOX2.refresh()
             BOX3.resize(HEIGHT-BOX_PADDING, BOX3_WIDTH)
             HELP_PANEL.resize(1, WIDTH)
             INPUT_PANEL.resize(3, WIDTH)
@@ -348,8 +360,6 @@ def main(pcs, yaml_dir):
                                   cmds_list, cursor_index)
         render_box(BOX3, HEIGHT, BOX3_WIDTH, BOX3_TITLE,
                    keystrokes_list)
-        HELP_PANEL.clear()
-        HELP_PANEL.refresh()
         render_input_panel()
 
         BOX2.move(BOX_BUFFER_SPACES + cursor_index, BOX_PADDING)
