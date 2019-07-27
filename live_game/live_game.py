@@ -3,17 +3,18 @@
 import click
 import curses
 import curses.ascii
+import sys
 
 from game.game import Game
 
 STDSCR = None
 
-BOX1 = None
-BOX1_TITLE = "Initiative Tracker"
-BOX1_WIDTH = 0
-BOX2 = None
-BOX2_TITLE = "Menu"
-BOX2_WIDTH = 0
+INIT_BOX = None
+INIT_BOX_TITLE = "Initiative Tracker"
+INIT_BOX_WIDTH = 0
+MENU_BOX = None
+MENU_BOX_TITLE = "Menu"
+MENU_BOX_WIDTH = 0
 BOX3 = None
 BOX3_TITLE = "Log"
 BOX3_WIDTH = 0
@@ -35,10 +36,11 @@ COMMANDS = {
     'Cycle Initiative': lambda: handle_next(),
     'Defer Initiative': lambda: defer_initiative(),
     'Sort Initiative': lambda: sort_init_list(),
+    'Quit': lambda: sys.exit(0)
 }
 
 HELP_TEXT = {
-    'Nav R Cancel': 'Hit ` or -> to Cancel',
+    'Nav L Cancel': 'Hit ` or <- to Cancel',
     'Cancel': 'Hit ` to Cancel',
 }
 
@@ -113,12 +115,13 @@ def add_character():
 
 def remove_character():
     global INIT_CURSOR_INDEX
-    display_help_text(HELP_TEXT['Nav R Cancel'])
+    display_help_text(HELP_TEXT['Nav L Cancel'])
     key = ''
-    while key not in FINAL_KEYS + RIGHT_LEFT_KEYS[:1]:
-        key = navigate(BOX1, BOX1_WIDTH, BOX1_TITLE)
+    while key not in FINAL_KEYS + RIGHT_LEFT_KEYS[1:]:
+        key = navigate(INIT_BOX, INIT_BOX_WIDTH, INIT_BOX_TITLE)
 
-    if key == ESC_KEY or key == RIGHT_LEFT_KEYS[0]:
+    if key == ESC_KEY or key == RIGHT_LEFT_KEYS[1]:
+        clear_help_text()
         return ESC_KEY
 
     init_and_name_list = GAME_STATE.initiative_list[INIT_CURSOR_INDEX].split()
@@ -127,6 +130,7 @@ def remove_character():
     GAME_STATE.remove_character(name)
     INIT_CURSOR_INDEX = 0
     clear_help_text()
+    INIT_BOX.clear()
     return name
 
 
@@ -148,12 +152,13 @@ def defer_initiative():
 
 def handle_next():
     GAME_STATE.next_initiative()
-    BOX1.clear()
+    INIT_BOX.clear()
     return ' '.join(GAME_STATE.initiative_list[0].split()[1:])
 
 
 def sort_init_list():
     GAME_STATE.sort_init_list()
+    INIT_BOX.clear()
     return 'descending'
 
 
@@ -178,13 +183,13 @@ def navigate(box, box_width, box_title):
 
 
 def set_initiative():
-    display_help_text(HELP_TEXT['Nav R Cancel'])
+    display_help_text(HELP_TEXT['Nav L Cancel'])
 
     key = ''
-    while key not in FINAL_KEYS + RIGHT_LEFT_KEYS[:1]:
-        key = navigate(BOX1, BOX1_WIDTH, BOX1_TITLE)
+    while key not in FINAL_KEYS + RIGHT_LEFT_KEYS:
+        key = navigate(INIT_BOX, INIT_BOX_WIDTH, INIT_BOX_TITLE)
 
-    if key == ESC_KEY or key == RIGHT_LEFT_KEYS[0]:
+    if key == ESC_KEY or key == RIGHT_LEFT_KEYS[1]:
         clear_help_text()
         return ESC_KEY
 
@@ -215,7 +220,8 @@ def get_input():
         if key == 'KEY_BACKSPACE':
             ret = ret[:-1]
         else:
-            ret += key
+            if len(key) == 1:
+                ret += key
         INPUT_PANEL.addstr(1, 1, ret)
         key = INPUT_PANEL.getkey()
         INPUT_PANEL.clear()
@@ -277,10 +283,10 @@ def navkey_to_index(keystroke, menu_list, cursor_index):
 
 def main(pcs, yaml_dir):
     global STDSCR
-    global BOX1
-    global BOX1_WIDTH
-    global BOX2
-    global BOX2_WIDTH
+    global INIT_BOX
+    global INIT_BOX_WIDTH
+    global MENU_BOX
+    global MENU_BOX_WIDTH
     global BOX3
     global BOX3_WIDTH
     global GAME_STATE
@@ -300,9 +306,8 @@ def main(pcs, yaml_dir):
     HEIGHT -= BOX_PADDING
     WIDTH -= BOX_PADDING
     MAX_BUFFER_LEN = WIDTH
-    BOX1_WIDTH = (WIDTH // 3) - BOX_PADDING
-    BOX2_WIDTH = (WIDTH // 3) - BOX_PADDING
-    BOX2_WIDTH = (WIDTH // 3) - BOX_PADDING
+    INIT_BOX_WIDTH = (WIDTH // 3) - BOX_PADDING
+    MENU_BOX_WIDTH = max([len(x) for x in COMMANDS.keys()]) + BOX_BUFFER_SPACES
 
     HELP_PANEL = curses.newwin(1, WIDTH, HEIGHT-2, 0)
 
@@ -310,20 +315,21 @@ def main(pcs, yaml_dir):
     INPUT_PANEL.immedok(True)
     INPUT_PANEL.keypad(True)
 
-    BOX1 = curses.newwin(HEIGHT-BOX_PADDING, BOX1_WIDTH, 0, 0)
-    BOX1.immedok(True)
-    BOX1.keypad(True)
+    MENU_BOX = curses.newwin(HEIGHT-BOX_PADDING, MENU_BOX_WIDTH, 0, 0)
+    MENU_BOX.immedok(True)
+    MENU_BOX.keypad(True)
+
+    INIT_BOX = curses.newwin(HEIGHT-BOX_PADDING, INIT_BOX_WIDTH, 0,
+                             MENU_BOX_WIDTH+1)
+    INIT_BOX.immedok(True)
+    INIT_BOX.keypad(True)
 
     cmds_list = list(COMMANDS.keys())
     cursor_index = 0
-    BOX2 = curses.newwin(HEIGHT-BOX_PADDING, BOX2_WIDTH, 0, BOX1_WIDTH+1)
-    BOX2.immedok(True)
-    BOX2.keypad(True)
-
     keystrokes_list = []
     key_list_max_len = HEIGHT-8
     BOX3 = curses.newwin(HEIGHT-BOX_PADDING, BOX3_WIDTH, 0,
-                         BOX1_WIDTH+BOX2_WIDTH+BOX_PADDING)
+                         INIT_BOX_WIDTH+MENU_BOX_WIDTH+BOX_PADDING)
     BOX3.immedok(True)
     BOX3.keypad(True)
 
@@ -335,39 +341,38 @@ def main(pcs, yaml_dir):
             HEIGHT -= BOX_PADDING
             WIDTH -= BOX_PADDING
             MAX_BUFFER_LEN = WIDTH
-            BOX1_WIDTH = (WIDTH // 3) - BOX_PADDING
-            BOX2_WIDTH = (WIDTH // 3) - BOX_PADDING
+            INIT_BOX_WIDTH = (WIDTH // 3) - BOX_PADDING
             BOX3_WIDTH = (WIDTH // 3) - BOX_PADDING
 
             HELP_PANEL.resize(1, WIDTH)
             INPUT_PANEL.resize(3, WIDTH)
-            BOX1.resize(HEIGHT-BOX_PADDING, BOX1_WIDTH)
-            BOX2.resize(HEIGHT-BOX_PADDING, BOX2_WIDTH)
-            BOX2.clear()
-            BOX2.refresh()
+            INIT_BOX.resize(HEIGHT-BOX_PADDING, INIT_BOX_WIDTH)
+            MENU_BOX.resize(HEIGHT-BOX_PADDING, MENU_BOX_WIDTH)
+            MENU_BOX.clear()
+            MENU_BOX.refresh()
             BOX3.resize(HEIGHT-BOX_PADDING, BOX3_WIDTH)
             HELP_PANEL.resize(1, WIDTH)
             INPUT_PANEL.resize(3, WIDTH)
-            BOX1.mvwin(0, 0)
-            BOX2.mvwin(0, BOX1_WIDTH+1)
-            BOX3.mvwin(0, BOX1_WIDTH+BOX2_WIDTH+BOX_PADDING)
+            MENU_BOX.mvwin(0, 0)
+            INIT_BOX.mvwin(0, MENU_BOX_WIDTH+1)
+            BOX3.mvwin(0, INIT_BOX_WIDTH+MENU_BOX_WIDTH+BOX_PADDING)
             HELP_PANEL.mvwin(HEIGHT-2, 0)
             INPUT_PANEL.mvwin(HEIGHT-1, 0)
 
-        render_box(BOX1, HEIGHT, BOX1_WIDTH, BOX1_TITLE,
+        render_box(INIT_BOX, HEIGHT, INIT_BOX_WIDTH, INIT_BOX_TITLE,
                    GAME_STATE.initiative_list)
-        render_box_highlight_text(BOX2, HEIGHT, BOX2_WIDTH, BOX2_TITLE,
-                                  cmds_list, cursor_index)
+        render_box_highlight_text(MENU_BOX, HEIGHT, MENU_BOX_WIDTH,
+                                  MENU_BOX_TITLE, cmds_list, cursor_index)
         render_box(BOX3, HEIGHT, BOX3_WIDTH, BOX3_TITLE,
                    keystrokes_list)
         render_input_panel()
 
-        BOX2.move(BOX_BUFFER_SPACES + cursor_index, BOX_PADDING)
-        key = BOX2.getkey()
+        MENU_BOX.move(BOX_BUFFER_SPACES + cursor_index, BOX_PADDING)
+        key = MENU_BOX.getkey()
 
         if key in UP_DOWN_KEYS:
             cursor_index = navkey_to_index(key, cmds_list, cursor_index)
-        elif key == ENTER_KEY or RIGHT_LEFT_KEYS[1]:
+        elif key == ENTER_KEY or RIGHT_LEFT_KEYS[0]:
             choice = cmds_list[cursor_index]
             extra = COMMANDS[choice]()
             if choice == 'Set Initiative':

@@ -43,6 +43,7 @@ class Game(object):
     def remove_character(self, name):
         if self.pcs.get(name, None) is not None:
             del self.pcs[name]
+            del self.initiative[name]
             self.pc_names.remove(name)
             self.make_initiative_list()
 
