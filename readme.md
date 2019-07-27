@@ -27,6 +27,7 @@ interactive menu.
 * Enter initiative for any character
 * Sort characters by initiative in descending order
 * Cycle through characters in initiative order
+* Defer initiative until end of turn
 * Add/remove characters to/from list on the fly
 
 Also features a log of past commands.

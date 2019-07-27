@@ -38,12 +38,15 @@ COMMANDS = {
 }
 
 HELP_TEXT = {
-    'Cancel': 'Hit ` to Cancel',        
+    'Cancel': 'Hit ` to Cancel',
 }
 
-NAV_KEYS = [
+UP_DOWN_KEYS = [
     'KEY_UP',
     'KEY_DOWN',
+]
+
+RIGHT_LEFT_KEYS = [
     'KEY_RIGHT',
     'KEY_LEFT',
 ]
@@ -108,9 +111,11 @@ def add_character():
 def remove_character():
     global INIT_CURSOR_INDEX
     display_help_text(HELP_TEXT['Cancel'])
-    key = navigate(BOX1, BOX1_WIDTH, BOX1_TITLE)
+    key = ''
+    while key not in FINAL_KEYS + RIGHT_LEFT_KEYS[:1]:
+        key = navigate(BOX1, BOX1_WIDTH, BOX1_TITLE)
 
-    if key == ESC_KEY:
+    if key == ESC_KEY or RIGHT_LEFT_KEYS[0]:
         return ESC_KEY
 
     init_and_name_list = GAME_STATE.initiative_list[INIT_CURSOR_INDEX].split()
@@ -153,14 +158,14 @@ def navigate(box, box_width, box_title):
 
     key = ''
 
-    while key not in FINAL_KEYS:
+    while key not in FINAL_KEYS + RIGHT_LEFT_KEYS:
         render_box_highlight_text(box, HEIGHT, box_width, box_title,
                                   GAME_STATE.initiative_list,
                                   INIT_CURSOR_INDEX)
         box.move(BOX_BUFFER_SPACES + INIT_CURSOR_INDEX, BOX_PADDING)
         key = box.getkey()
 
-        if key in NAV_KEYS:
+        if key in UP_DOWN_KEYS:
             INIT_CURSOR_INDEX = navkey_to_index(key,
                                                 GAME_STATE.initiative_list,
                                                 INIT_CURSOR_INDEX)
@@ -171,9 +176,11 @@ def navigate(box, box_width, box_title):
 def set_initiative():
     display_help_text(HELP_TEXT['Cancel'])
 
-    key = navigate(BOX1, BOX1_WIDTH, BOX1_TITLE)
+    key = ''
+    while key not in FINAL_KEYS + RIGHT_LEFT_KEYS[:1]:
+        key = navigate(BOX1, BOX1_WIDTH, BOX1_TITLE)
 
-    if key == ESC_KEY:
+    if key == ESC_KEY or key == RIGHT_LEFT_KEYS[0]:
         return ESC_KEY
 
     choice = GAME_STATE.initiative_list[INIT_CURSOR_INDEX]
@@ -348,9 +355,9 @@ def main(pcs, yaml_dir):
         BOX2.move(BOX_BUFFER_SPACES + cursor_index, BOX_PADDING)
         key = BOX2.getkey()
 
-        if key in NAV_KEYS:
+        if key in UP_DOWN_KEYS:
             cursor_index = navkey_to_index(key, cmds_list, cursor_index)
-        elif key == ENTER_KEY:
+        elif key == ENTER_KEY or RIGHT_LEFT_KEYS[1]:
             choice = cmds_list[cursor_index]
             extra = COMMANDS[choice]()
             if choice == 'Set Initiative':
