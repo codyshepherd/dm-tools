@@ -38,6 +38,7 @@ NAV_KEYS = [
 ]
 
 ESC_KEY = 'q'
+INIT_CURSOR_INDEX = 0
 
 
 @click.command()
@@ -88,24 +89,26 @@ def sort_init_list():
 
 
 def set_initiative():
-    cursor_index = 0
+    global INIT_CURSOR_INDEX
     key = ''
 
     final_keys = ['\n', ESC_KEY]
     while key not in final_keys:
         render_box_highlight_text(BOX1, HEIGHT, BOX1_WIDTH, BOX1_TITLE,
-                                  GAME_STATE.initiative_list, cursor_index)
-        BOX1.move(BOX_BUFFER_SPACES + cursor_index, BOX_PADDING)
+                                  GAME_STATE.initiative_list,
+                                  INIT_CURSOR_INDEX)
+        BOX1.move(BOX_BUFFER_SPACES + INIT_CURSOR_INDEX, BOX_PADDING)
         key = BOX1.getkey()
 
         if key in NAV_KEYS:
-            cursor_index = navkey_to_index(key, GAME_STATE.initiative_list,
-                                           cursor_index)
+            INIT_CURSOR_INDEX = navkey_to_index(key,
+                                                GAME_STATE.initiative_list,
+                                                INIT_CURSOR_INDEX)
 
     if key == ESC_KEY:
-        return 'ESC'
+        return ESC_KEY
 
-    choice = GAME_STATE.initiative_list[cursor_index]
+    choice = GAME_STATE.initiative_list[INIT_CURSOR_INDEX]
     items = get_input().split()
     if len(items) < 1:
         return 'no input'
@@ -270,7 +273,13 @@ def main(stdscr, pcs, yaml_dir):
         elif key == '\n':
             choice = cmds_list[cursor_index]
             extra = COMMANDS[choice]()
-            if extra != 'ESC':
+            if choice == 'Set Initiative':
+                while extra != ESC_KEY:
+                    keystrokes_list = max_len_append(' '.join([choice, extra]),
+                                                     keystrokes_list,
+                                                     key_list_max_len)
+                    extra = COMMANDS[choice]()
+            else:
                 keystrokes_list = max_len_append(' '.join([choice, extra]),
                                                  keystrokes_list,
                                                  key_list_max_len)
