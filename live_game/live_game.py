@@ -37,6 +37,8 @@ NAV_KEYS = [
     'KEY_LEFT',
 ]
 
+ESC_KEY = 'q'
+
 
 @click.command()
 @click.option('--pcs', type=click.Path(dir_okay=False, writable=True,
@@ -89,7 +91,8 @@ def set_initiative():
     cursor_index = 0
     key = ''
 
-    while key != '\n':
+    final_keys = ['\n', ESC_KEY]
+    while key not in final_keys:
         render_box_highlight_text(BOX1, HEIGHT, BOX1_WIDTH, BOX1_TITLE,
                                   GAME_STATE.initiative_list, cursor_index)
         BOX1.move(BOX_BUFFER_SPACES + cursor_index, BOX_PADDING)
@@ -98,6 +101,9 @@ def set_initiative():
         if key in NAV_KEYS:
             cursor_index = navkey_to_index(key, GAME_STATE.initiative_list,
                                            cursor_index)
+
+    if key == ESC_KEY:
+        return 'ESC'
 
     choice = GAME_STATE.initiative_list[cursor_index]
     items = get_input().split()
@@ -145,6 +151,8 @@ def render_box_highlight_text(box, height, width, title, strings, index):
 
 
 def render_box(box, height, width, title, strings):
+    box.clear()
+    box.refresh()
     box.box()
     box.addstr(1, BOX_PADDING, title)
     box.addstr(BOX_PADDING, 1, ''.join('-' for i in range(width-BOX_PADDING)))
@@ -155,7 +163,6 @@ def render_box(box, height, width, title, strings):
         else:
             box.addstr(start, BOX_PADDING, string)
         start += 1
-    box.refresh()
 
 
 def render_input_panel():
@@ -263,9 +270,10 @@ def main(stdscr, pcs, yaml_dir):
         elif key == '\n':
             choice = cmds_list[cursor_index]
             extra = COMMANDS[choice]()
-            keystrokes_list = max_len_append(' '.join([choice, extra]),
-                                             keystrokes_list,
-                                             key_list_max_len)
+            if extra != 'ESC':
+                keystrokes_list = max_len_append(' '.join([choice, extra]),
+                                                 keystrokes_list,
+                                                 key_list_max_len)
 
 
 if __name__ == '__main__':
