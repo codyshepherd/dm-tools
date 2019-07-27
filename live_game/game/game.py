@@ -35,6 +35,17 @@ class Game(object):
 
         self.make_initiative_list()
 
+    def add_character(self, name):
+        self.pcs[name] = {'name': name}
+        self.pc_names.append(name)
+        self.set_initiative(name, '0')
+
+    def remove_character(self, name):
+        if self.pcs.get(name, None) is not None:
+            del self.pcs[name]
+            self.pc_names.remove(name)
+            self.make_initiative_list()
+
     def next_initiative(self):
         first = self.initiative_list[0]
         rest = self.initiative_list[1:]

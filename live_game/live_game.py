@@ -2,6 +2,7 @@
 
 import click
 import curses
+import curses.ascii
 
 from game.game import Game
 
@@ -25,6 +26,8 @@ WIDTH = 0
 YAML_DIR = 'yamls'
 
 COMMANDS = {
+    'Add Character': lambda: add_character(),
+    'Remove Character': lambda: remove_character(),
     'Set Initiative': lambda: set_initiative(),
     'Cycle Initiative': lambda: handle_next(),
     'Sort Initiative': lambda: sort_init_list(),
@@ -37,7 +40,9 @@ NAV_KEYS = [
     'KEY_LEFT',
 ]
 
-ESC_KEY = 'q'
+ENTER_KEY = '\n'
+ESC_KEY = '`'
+FINAL_KEYS = [ENTER_KEY, ESC_KEY]
 INIT_CURSOR_INDEX = 0
 
 
@@ -69,6 +74,30 @@ def start(pcs, yaml_dir):
         curses.endwin()
 
 
+def add_character():
+    name = get_input()
+    if len(name) < 1:
+        return "no input"
+
+    GAME_STATE.add_character(name)
+    return name
+
+
+def remove_character():
+    global INIT_CURSOR_INDEX
+    key = navigate(BOX1, BOX1_WIDTH, BOX1_TITLE)
+
+    if key == ESC_KEY:
+        return ESC_KEY
+
+    init_and_name_list = GAME_STATE.initiative_list[INIT_CURSOR_INDEX].split()
+    name = ' '.join(init_and_name_list[1:])
+
+    GAME_STATE.remove_character(name)
+    INIT_CURSOR_INDEX = 0
+    return name
+
+
 def max_len_append(new_item, the_list, max_len):
     ln = len(the_list)
     diff = ln - max_len
@@ -88,22 +117,29 @@ def sort_init_list():
     return 'descending'
 
 
-def set_initiative():
+def navigate(box, box_width, box_title):
     global INIT_CURSOR_INDEX
+
     key = ''
 
-    final_keys = ['\n', ESC_KEY]
-    while key not in final_keys:
-        render_box_highlight_text(BOX1, HEIGHT, BOX1_WIDTH, BOX1_TITLE,
+    while key not in FINAL_KEYS:
+        render_box_highlight_text(box, HEIGHT, box_width, box_title,
                                   GAME_STATE.initiative_list,
                                   INIT_CURSOR_INDEX)
-        BOX1.move(BOX_BUFFER_SPACES + INIT_CURSOR_INDEX, BOX_PADDING)
-        key = BOX1.getkey()
+        box.move(BOX_BUFFER_SPACES + INIT_CURSOR_INDEX, BOX_PADDING)
+        key = box.getkey()
 
         if key in NAV_KEYS:
             INIT_CURSOR_INDEX = navkey_to_index(key,
                                                 GAME_STATE.initiative_list,
                                                 INIT_CURSOR_INDEX)
+
+    return key
+
+
+def set_initiative():
+
+    key = navigate(BOX1, BOX1_WIDTH, BOX1_TITLE)
 
     if key == ESC_KEY:
         return ESC_KEY
@@ -124,17 +160,19 @@ def set_initiative():
 
 def get_input():
     INPUT_PANEL.move(1, 1)
-    c = INPUT_PANEL.getkey()
+    key = INPUT_PANEL.getkey()
     ret = ''
-    while c != '\n' and len(ret) < MAX_BUFFER_LEN:
-        if c == 'KEY_BACKSPACE':
+    while key not in FINAL_KEYS and len(ret) < MAX_BUFFER_LEN:
+        if key == 'KEY_BACKSPACE':
             ret = ret[:-1]
         else:
-            ret += c
+            ret += key
         INPUT_PANEL.addstr(1, 1, ret)
-        c = INPUT_PANEL.getkey()
+        key = INPUT_PANEL.getkey()
         render_input_panel()
     INPUT_PANEL.refresh()
+    if key == ESC_KEY:
+        return ''
     return ret
 
 
@@ -270,7 +308,7 @@ def main(stdscr, pcs, yaml_dir):
 
         if key in NAV_KEYS:
             cursor_index = navkey_to_index(key, cmds_list, cursor_index)
-        elif key == '\n':
+        elif key == ENTER_KEY:
             choice = cmds_list[cursor_index]
             extra = COMMANDS[choice]()
             if choice == 'Set Initiative':
