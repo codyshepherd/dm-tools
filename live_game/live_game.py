@@ -14,14 +14,19 @@ INIT_BOX_TITLE = "Initiative Tracker"
 INIT_BOX_WIDTH = 0
 MENU_BOX = None
 MENU_BOX_TITLE = "Menu"
+MENU_BOX_HEIGHT = 0
 MENU_BOX_WIDTH = 0
-BOX3 = None
-BOX3_TITLE = "Log"
-BOX3_WIDTH = 0
+STATUS_BOX = None
+STATUS_BOX_TITLE = "Status"
+STATUS_BOX_WIDTH = 0
+LOG_BOX = None
+LOG_BOX_TITLE = "Log"
+LOG_BOX_WIDTH = 0
 HELP_PANEL = None
 INPUT_PANEL = None
 
 BOX_BUFFER_SPACES = 4
+BOX_HEIGHT_PADDING = 5
 BOX_PADDING = 2
 GAME_STATE = None
 HEIGHT = 0
@@ -60,33 +65,43 @@ FINAL_KEYS = [ENTER_KEY, ESC_KEY]
 INIT_CURSOR_INDEX = 0
 
 
-@click.command()
-@click.option('--pcs', type=click.Path(dir_okay=False, writable=True,
-              readable=True), default='pcs.yaml',
-              help='name of alternate PCs file')
-@click.option('--yaml-dir', type=click.Path(exists=True, dir_okay=True,
-              file_okay=False, writable=True, readable=True), default='yamls',
-              help='path to alternate yaml dir')
-def start(pcs, yaml_dir):
-    global STDSCR
+def add_character():
+    name = get_input()
+    if len(name) < 1:
+        return "no input"
 
-    try:
-        STDSCR = curses.initscr()
-        curses.start_color()
-        STDSCR.immedok(True)
+    GAME_STATE.add_character(name)
+    return name
 
-        # The following options need to be reversed if they are enabled
-        STDSCR.keypad(True)     # curses handles cursor & nav keys
-        curses.noecho()   # turns off echoing of keys to screen
-        curses.cbreak()   # react to keys instantly, don't wait for Enter
 
-        main(pcs, yaml_dir)
-    finally:
-        # Terminate application
-        curses.nocbreak()
-        curses.echo()
-        STDSCR.keypad(False)
-        curses.endwin()
+def clear_help_text():
+    HELP_PANEL.clear()
+    HELP_PANEL.addstr(0, BOX_PADDING, '')
+    HELP_PANEL.refresh()
+
+
+def clear_refresh_all():
+    STDSCR.clear()
+    STDSCR.refresh()
+    INPUT_PANEL.clear()
+    INPUT_PANEL.refresh()
+    HELP_PANEL.clear()
+    HELP_PANEL.refresh()
+    MENU_BOX.clear()
+    MENU_BOX.refresh()
+    INIT_BOX.clear()
+    INIT_BOX.refresh()
+    STATUS_BOX.clear()
+    STATUS_BOX.refresh()
+    LOG_BOX.clear()
+    LOG_BOX.refresh()
+
+
+def defer_initiative():
+    init_and_name_list = GAME_STATE.initiative_list[0].split()
+    name = ' '.join(init_and_name_list[1:])
+    GAME_STATE.defer_initiative()
+    return name
 
 
 def display_help_text(text):
@@ -98,19 +113,74 @@ def display_help_text(text):
     HELP_PANEL.refresh()
 
 
-def clear_help_text():
-    HELP_PANEL.clear()
-    HELP_PANEL.addstr(0, BOX_PADDING, '')
-    HELP_PANEL.refresh()
+def get_input():
+    display_help_text(HELP_TEXT['Cancel'])
+
+    INPUT_PANEL.move(1, 1)
+    key = INPUT_PANEL.getkey()
+    ret = ''
+    while key not in FINAL_KEYS and len(ret) < MAX_BUFFER_LEN:
+        if key == 'KEY_BACKSPACE':
+            ret = ret[:-1]
+        else:
+            if len(key) == 1:
+                ret += key
+        INPUT_PANEL.addstr(1, 1, ret)
+        key = INPUT_PANEL.getkey()
+        INPUT_PANEL.clear()
+        render_input_panel()
+    clear_help_text()
+    if key == ESC_KEY:
+        return ''
+    return ret
 
 
-def add_character():
-    name = get_input()
-    if len(name) < 1:
-        return "no input"
+def handle_next():
+    GAME_STATE.next_initiative()
+    INIT_BOX.clear()
+    return ' '.join(GAME_STATE.initiative_list[0].split()[1:])
 
-    GAME_STATE.add_character(name)
-    return name
+
+def max_len_append(new_item, the_list, max_len):
+    ln = len(the_list)
+    diff = ln - max_len
+    if diff >= 0:
+        the_list = the_list[diff+1:]
+    the_list.append(new_item)
+    return the_list
+
+
+def navigate(box, box_width, box_title):
+    global INIT_CURSOR_INDEX
+
+    key = ''
+
+    while key not in FINAL_KEYS + RIGHT_LEFT_KEYS:
+        render_box_highlight_text(box, HEIGHT, box_width, box_title,
+                                  GAME_STATE.initiative_list,
+                                  INIT_CURSOR_INDEX)
+        box.move(BOX_BUFFER_SPACES + INIT_CURSOR_INDEX, BOX_PADDING)
+        key = box.getkey()
+
+        if key in UP_DOWN_KEYS:
+            INIT_CURSOR_INDEX = navkey_to_index(key,
+                                                GAME_STATE.initiative_list,
+                                                INIT_CURSOR_INDEX)
+
+    return key
+
+
+def navkey_to_index(keystroke, menu_list, cursor_index):
+    if keystroke == 'KEY_UP' and cursor_index <= 0:
+        return len(menu_list)-1
+    elif keystroke == 'KEY_DOWN' and cursor_index >= len(menu_list)-1:
+        return 0
+    elif keystroke == 'KEY_UP':
+        return cursor_index - 1
+    elif keystroke == 'KEY_DOWN':
+        return cursor_index + 1
+    else:
+        return cursor_index
 
 
 def remove_character():
@@ -134,52 +204,42 @@ def remove_character():
     return name
 
 
-def max_len_append(new_item, the_list, max_len):
-    ln = len(the_list)
-    diff = ln - max_len
-    if diff >= 0:
-        the_list = the_list[diff+1:]
-    the_list.append(new_item)
-    return the_list
+def render_box(box, height, width, title, strings):
+    # box.clear()
+    # box.refresh()
+    box.box()
+    box.addstr(1, BOX_PADDING, title)
+    box.addstr(BOX_PADDING, 1, ''.join('-' for i in range(width-BOX_PADDING)))
+    start = BOX_BUFFER_SPACES
+    for string in strings:
+        try:
+            if len(string) >= width-BOX_BUFFER_SPACES:
+                box.addstr(start,
+                           BOX_PADDING, string[:width-BOX_BUFFER_SPACES])
+            else:
+                box.addstr(start, BOX_PADDING, string)
+        except Exception:
+            continue
+        start += 1
 
 
-def defer_initiative():
-    init_and_name_list = GAME_STATE.initiative_list[0].split()
-    name = ' '.join(init_and_name_list[1:])
-    GAME_STATE.defer_initiative()
-    return name
+def render_box_highlight_text(box, height, width, title, strings, index):
+    box.box()
+    box.addstr(1, BOX_PADDING, title)
+    box.addstr(BOX_PADDING, 1, ''.join('-' for i in range(width-BOX_PADDING)))
+    start = BOX_BUFFER_SPACES
+    for i, string in enumerate(strings):
+        if len(string) >= width-BOX_BUFFER_SPACES:
+            string = string[:width-BOX_BUFFER_SPACES]
+        if i == index:
+            box.addstr(start, BOX_PADDING, string, curses.A_STANDOUT)
+        else:
+            box.addstr(start, BOX_PADDING, string)
+        start += 1
 
 
-def handle_next():
-    GAME_STATE.next_initiative()
-    INIT_BOX.clear()
-    return ' '.join(GAME_STATE.initiative_list[0].split()[1:])
-
-
-def sort_init_list():
-    GAME_STATE.sort_init_list()
-    INIT_BOX.clear()
-    return 'descending'
-
-
-def navigate(box, box_width, box_title):
-    global INIT_CURSOR_INDEX
-
-    key = ''
-
-    while key not in FINAL_KEYS + RIGHT_LEFT_KEYS:
-        render_box_highlight_text(box, HEIGHT, box_width, box_title,
-                                  GAME_STATE.initiative_list,
-                                  INIT_CURSOR_INDEX)
-        box.move(BOX_BUFFER_SPACES + INIT_CURSOR_INDEX, BOX_PADDING)
-        key = box.getkey()
-
-        if key in UP_DOWN_KEYS:
-            INIT_CURSOR_INDEX = navkey_to_index(key,
-                                                GAME_STATE.initiative_list,
-                                                INIT_CURSOR_INDEX)
-
-    return key
+def render_input_panel():
+    INPUT_PANEL.box()
 
 
 def set_initiative():
@@ -210,75 +270,10 @@ def set_initiative():
     return f'{name} {first_item}'
 
 
-def get_input():
-    display_help_text(HELP_TEXT['Cancel'])
-
-    INPUT_PANEL.move(1, 1)
-    key = INPUT_PANEL.getkey()
-    ret = ''
-    while key not in FINAL_KEYS and len(ret) < MAX_BUFFER_LEN:
-        if key == 'KEY_BACKSPACE':
-            ret = ret[:-1]
-        else:
-            if len(key) == 1:
-                ret += key
-        INPUT_PANEL.addstr(1, 1, ret)
-        key = INPUT_PANEL.getkey()
-        INPUT_PANEL.clear()
-        render_input_panel()
-    clear_help_text()
-    if key == ESC_KEY:
-        return ''
-    return ret
-
-
-def render_box_highlight_text(box, height, width, title, strings, index):
-    box.box()
-    box.addstr(1, BOX_PADDING, title)
-    box.addstr(BOX_PADDING, 1, ''.join('-' for i in range(width-BOX_PADDING)))
-    start = BOX_BUFFER_SPACES
-    for i, string in enumerate(strings):
-        if len(string) >= width-BOX_BUFFER_SPACES:
-            string = string[:width-BOX_BUFFER_SPACES]
-        if i == index:
-            box.addstr(start, BOX_PADDING, string, curses.A_STANDOUT)
-        else:
-            box.addstr(start, BOX_PADDING, string)
-        start += 1
-
-
-def render_box(box, height, width, title, strings):
-    # box.clear()
-    # box.refresh()
-    box.box()
-    box.addstr(1, BOX_PADDING, title)
-    box.addstr(BOX_PADDING, 1, ''.join('-' for i in range(width-BOX_PADDING)))
-    start = BOX_BUFFER_SPACES
-    for string in strings:
-        if len(string) >= width-BOX_BUFFER_SPACES:
-            box.addstr(start, BOX_PADDING, string[:width-BOX_BUFFER_SPACES])
-        else:
-            box.addstr(start, BOX_PADDING, string)
-        start += 1
-
-
-def render_input_panel():
-    # INPUT_PANEL.clear()
-    INPUT_PANEL.box()
-    # INPUT_PANEL.refresh()
-
-
-def navkey_to_index(keystroke, menu_list, cursor_index):
-    if keystroke == 'KEY_UP' and cursor_index <= 0:
-        return len(menu_list)-1
-    elif keystroke == 'KEY_DOWN' and cursor_index >= len(menu_list)-1:
-        return 0
-    elif keystroke == 'KEY_UP':
-        return cursor_index - 1
-    elif keystroke == 'KEY_DOWN':
-        return cursor_index + 1
-    else:
-        return cursor_index
+def sort_init_list():
+    GAME_STATE.sort_init_list()
+    INIT_BOX.clear()
+    return 'descending'
 
 
 def main(pcs, yaml_dir):
@@ -286,9 +281,12 @@ def main(pcs, yaml_dir):
     global INIT_BOX
     global INIT_BOX_WIDTH
     global MENU_BOX
+    global MENU_BOX_HEIGHT
     global MENU_BOX_WIDTH
-    global BOX3
-    global BOX3_WIDTH
+    global STATUS_BOX
+    global STATUS_BOX_WIDTH
+    global LOG_BOX
+    global LOG_BOX_WIDTH
     global GAME_STATE
     global HEIGHT
     global HELP_PANEL
@@ -306,8 +304,10 @@ def main(pcs, yaml_dir):
     HEIGHT -= BOX_PADDING
     WIDTH -= BOX_PADDING
     MAX_BUFFER_LEN = WIDTH
-    INIT_BOX_WIDTH = (WIDTH // 3) - BOX_PADDING
+    INIT_BOX_WIDTH = 40
     MENU_BOX_WIDTH = max([len(x) for x in COMMANDS.keys()]) + BOX_BUFFER_SPACES
+    MENU_BOX_HEIGHT = len(COMMANDS.keys()) + BOX_HEIGHT_PADDING
+    STATUS_BOX_WIDTH = 40
 
     HELP_PANEL = curses.newwin(1, WIDTH, HEIGHT-2, 0)
 
@@ -315,7 +315,7 @@ def main(pcs, yaml_dir):
     INPUT_PANEL.immedok(True)
     INPUT_PANEL.keypad(True)
 
-    MENU_BOX = curses.newwin(HEIGHT-BOX_PADDING, MENU_BOX_WIDTH, 0, 0)
+    MENU_BOX = curses.newwin(MENU_BOX_HEIGHT, MENU_BOX_WIDTH, 0, 0)
     MENU_BOX.immedok(True)
     MENU_BOX.keypad(True)
 
@@ -324,14 +324,22 @@ def main(pcs, yaml_dir):
     INIT_BOX.immedok(True)
     INIT_BOX.keypad(True)
 
+    STATUS_BOX = curses.newwin(HEIGHT-BOX_PADDING, STATUS_BOX_WIDTH, 0,
+                               MENU_BOX_WIDTH + INIT_BOX_WIDTH + 2)
+    STATUS_BOX.immedok(True)
+    STATUS_BOX.keypad(True)
+
     cmds_list = list(COMMANDS.keys())
     cursor_index = 0
     keystrokes_list = []
     key_list_max_len = HEIGHT-8
-    BOX3 = curses.newwin(HEIGHT-BOX_PADDING, BOX3_WIDTH, 0,
-                         INIT_BOX_WIDTH+MENU_BOX_WIDTH+BOX_PADDING)
-    BOX3.immedok(True)
-    BOX3.keypad(True)
+    LOG_BOX = curses.newwin(HEIGHT-BOX_PADDING, LOG_BOX_WIDTH, 0,
+                            INIT_BOX_WIDTH +
+                            MENU_BOX_WIDTH +
+                            STATUS_BOX_WIDTH +
+                            3)
+    LOG_BOX.immedok(True)
+    LOG_BOX.keypad(True)
 
     while True:
         STDSCR.refresh()
@@ -341,29 +349,41 @@ def main(pcs, yaml_dir):
             HEIGHT -= BOX_PADDING
             WIDTH -= BOX_PADDING
             MAX_BUFFER_LEN = WIDTH
-            INIT_BOX_WIDTH = (WIDTH // 3) - BOX_PADDING
-            BOX3_WIDTH = (WIDTH // 3) - BOX_PADDING
+
+            INIT_BOX_WIDTH = 40 if WIDTH > 120 else (WIDTH // 3) - BOX_PADDING
+            STATUS_BOX_WIDTH = 40 if WIDTH > 120 else (WIDTH // 3) - \
+                BOX_PADDING
+            LOG_BOX_WIDTH = (WIDTH // 3) - BOX_PADDING
 
             HELP_PANEL.resize(1, WIDTH)
             INPUT_PANEL.resize(3, WIDTH)
             INIT_BOX.resize(HEIGHT-BOX_PADDING, INIT_BOX_WIDTH)
-            MENU_BOX.resize(HEIGHT-BOX_PADDING, MENU_BOX_WIDTH)
-            MENU_BOX.clear()
-            MENU_BOX.refresh()
-            BOX3.resize(HEIGHT-BOX_PADDING, BOX3_WIDTH)
+            MENU_BOX.resize(MENU_BOX_HEIGHT, MENU_BOX_WIDTH)
+            STATUS_BOX.resize(HEIGHT-BOX_PADDING, STATUS_BOX_WIDTH)
+            LOG_BOX.resize(HEIGHT-BOX_PADDING, LOG_BOX_WIDTH)
             HELP_PANEL.resize(1, WIDTH)
             INPUT_PANEL.resize(3, WIDTH)
+
             MENU_BOX.mvwin(0, 0)
             INIT_BOX.mvwin(0, MENU_BOX_WIDTH+1)
-            BOX3.mvwin(0, INIT_BOX_WIDTH+MENU_BOX_WIDTH+BOX_PADDING)
+            STATUS_BOX.mvwin(0, INIT_BOX_WIDTH +
+                             MENU_BOX_WIDTH +
+                             2)
+            LOG_BOX.mvwin(0, INIT_BOX_WIDTH +
+                          MENU_BOX_WIDTH +
+                          STATUS_BOX_WIDTH +
+                          3)
             HELP_PANEL.mvwin(HEIGHT-2, 0)
             INPUT_PANEL.mvwin(HEIGHT-1, 0)
+            clear_refresh_all()
 
-        render_box(INIT_BOX, HEIGHT, INIT_BOX_WIDTH, INIT_BOX_TITLE,
-                   GAME_STATE.initiative_list)
         render_box_highlight_text(MENU_BOX, HEIGHT, MENU_BOX_WIDTH,
                                   MENU_BOX_TITLE, cmds_list, cursor_index)
-        render_box(BOX3, HEIGHT, BOX3_WIDTH, BOX3_TITLE,
+        render_box(INIT_BOX, HEIGHT, INIT_BOX_WIDTH, INIT_BOX_TITLE,
+                   GAME_STATE.initiative_list)
+        render_box(STATUS_BOX, HEIGHT, STATUS_BOX_WIDTH, STATUS_BOX_TITLE,
+                   GAME_STATE.pcs_status_list)
+        render_box(LOG_BOX, HEIGHT, LOG_BOX_WIDTH, LOG_BOX_TITLE,
                    keystrokes_list)
         render_input_panel()
 
@@ -385,6 +405,35 @@ def main(pcs, yaml_dir):
                 keystrokes_list = max_len_append(' '.join([choice, extra]),
                                                  keystrokes_list,
                                                  key_list_max_len)
+
+
+@click.command()
+@click.option('--pcs', type=click.Path(dir_okay=False, writable=True,
+              readable=True), default='pcs.yaml',
+              help='name of alternate PCs file')
+@click.option('--yaml-dir', type=click.Path(exists=True, dir_okay=True,
+              file_okay=False, writable=True, readable=True), default='yamls',
+              help='path to alternate yaml dir')
+def start(pcs, yaml_dir):
+    global STDSCR
+
+    try:
+        STDSCR = curses.initscr()
+        curses.start_color()
+        STDSCR.immedok(True)
+
+        # The following options need to be reversed if they are enabled
+        STDSCR.keypad(True)     # curses handles cursor & nav keys
+        curses.noecho()   # turns off echoing of keys to screen
+        curses.cbreak()   # react to keys instantly, don't wait for Enter
+
+        main(pcs, yaml_dir)
+    finally:
+        # Terminate application
+        curses.nocbreak()
+        curses.echo()
+        STDSCR.keypad(False)
+        curses.endwin()
 
 
 if __name__ == '__main__':

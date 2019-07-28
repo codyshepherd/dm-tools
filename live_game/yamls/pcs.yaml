@@ -1,219 +1,32 @@
 - character:
     name: Meriel Symrustar
-    race: High Elf
-    class: Warlock
-    level: 5
-    player: Sara
-    active: true
-    edition: 5
-    items:
-        - item:
-            name: Rod of the Pact Keeper +2
-            count: 1
-            notes: |
-                +2 to spell attack bonus & save DC
-                Action - regain a spell slot
-                Once per long rest
-        - item:
-            name: Ioun Stone of Reserve
-            count: 1
-            notes: |
-                Store <= 3 levels of spells (at any slot level)
-                Cast stored spell(s) later for free
+    hp: 8
     conditions:
-        permanent: |
-            none
-        temporary: |
-            none
 - character:
     name: "Merrick 'The Cleric' Balliol"
-    race: Human
-    class: Cleric
-    level: 5
-    player: Andre
-    active: true
-    edition: 5
-    items:
-        - item:
-            name: Moon-Touched Sword
-            count: 1
-            notes: |
-                Bright light to 15'
-                Dim light to 30'
-        - item:
-            name: Summoner's Staff +2
-            count: 1
-            notes: |
-                Quarterstaff +2
-                Indestructible
-                Legendary
+    hp: 8
     conditions:
-        permanent: |
-            none
-        temporary: |
-            none
 - character:
     name: Woodlark Crunchleaf
-    race: Wood Elf
-    class: Druid
-    level: 5
-    player: Marissa
-    active: true
-    edition: 5
-    items:
-        - item:
-            name: Potion of Healing
-            count: 5
-            notes: |
-                Bonus action - Heal 2d8 HP
-        - item:
-            name: Spear +2
-            count: 1
-            notes: |
-                Spear +2
-                Unbreakable blade
-        - item:
-            name: Ring of Evasion
-            count: 1
-            notes: |
-                Three charges per day
-                If Dex save fails, expend charge to succeed instead
+    hp: 8
     conditions:
-        permanent: |
-            none
-        temporary: |
-            none
 - character:
     name: Sir Tolkien of Legolas
-    race: Human
-    class: Ranger
-    level: 5
-    player: Tim
-    active: true
-    edition: 5
-    items:
-        - item:
-            name: Cloak of Elvenkind
-            count: 1
-            notes: |
-                Advantage on Stealth (Dex)
-        - item:
-            name: Onyx Warrior Statue
-            count: 1
-            notes: |
-                +1 on Strength Saving Throw
-        - item:
-            name: Pebble of Continual Light
-            count: 1
-            notes: |
-                Produces dim light to 15'
+    hp: 10
     conditions:
-        permanent: |
-            none
-        temporary: |
-            none
 - character:
     name: Blorp Blip
-    race: Construct
-    class: Fighter
-    level: 5
-    player: Lauren
-    active: true
-    edition: 5
-    items:
-        - item:
-            name: Mace of Smiting +1
-            count: 1
-            notes: |
-                Mace +1
-                +3 against constructs
-                +7 dmg on crit (+14 against constructs)
-                Any construct < 25 HP after critical dmg is destroyed
-        - item:
-            name: Bracers of Defense +2
-            count: 1
-            notes: |
-                +2 AC
-        - item:
-            name: Flute of Hypnotism
-            count: 1
-            notes: |
-                Hypnotize Target, Wis Save DC 14
+    hp: 10
     conditions:
-        permanent: |
-            none
-        temporary: |
-            none
 - character:
     name: Gunter
-    race: Human
-    class: Bard
-    level: 5
-    player: Evan
-    active: true
-    edition: 5
-    items:
-      - item:
-          name: Sending Stone
-          count: 2
-          notes: |
-              Carriers can cast "sending" to one another
-      - item:
-          name: Mithral Breast Plate
-          count: 1
-          notes: |
-            No penalties to dex bonus or stealth
-      - item:
-          name: Rapier of Speed +2
-          count: 1
-          notes: |
-            Make additional attack as bonus action
-            +2 rapier
-      - item:
-          name: Cadmium dagger
-          count: 1
-          notes: |
-            On dealing dmg, victim makes Con save, DC 15 or suffers
-            poisoning that is fatal in 3 days
+    hp: 8
     conditions:
-        permanent: |
-          none
-        temporary: |
-          none
 - character:
     name: Donald Derp
-    race: Half-Giant (Half-Orc)
-    class: Paladin
-    level: 5
-    player: Elijah
-    active: true
-    edition: 5
-    items:
-      - item:
-          name: Immovable Rod
-          count: 1
-          notes: |
-            Push button to make rod immovable in space
-            <= 500 lbs
-      - item:
-          name: Alchemy Jug
-          count: 1
-          notes: |
-            Choose a liquid for this jug to produce
+    hp: 8
     conditions:
-        permanent: |
-          none
-        temporary: |
-          none
 - character:
     name: Garon Flittingleaf
-    race: Elf
-    class: Thief
-    level: 5
-    player: Brian
-    active: false
-    edition: 2
-    items:
+    hp: 6
     conditions:
-        permanent:
-        temporary:

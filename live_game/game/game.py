@@ -98,28 +98,6 @@ class Game(object):
         self.make_initiative_list()
 
     @property
-    def pcs_string(self):
+    def pcs_status_list(self):
         # type: () -> List[Text]
-        lst = []
-        for char in self.pcs:
-            if not char['character']['active']:
-                continue
-            ch = char['character']
-
-            def checkname(x):
-                return x['item']['name'] if x['item'] is not None else \
-                        'No Entry'
-
-            items = ch['items']
-            itemstring = ''
-            if len(items) > 0:
-                itemstring = '\n'.join(list(map(checkname, items)))
-
-            lst += '{}\nItems:\n{}\n\nConditions:\nPermanent:\n{}\nTemporary:\n{}===\n\n'.format(
-                  ch['name'],
-                  itemstring,
-                  ch['conditions']['permanent'],
-                  ch['conditions']['temporary'],
-                  )
-
-        return ''.join(lst)
+        return self.pc_names
