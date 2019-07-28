@@ -19,17 +19,11 @@ Requires python >= 3.6
 ## live-game
 A tool for tracking of a play session.
 
-Run with `./live-game.py` in the command line. Best if you have a yaml file
-like mine called `pcs.yaml` in a subdirectory, called `yamls/` by default.
+Run with `./live-game.py` at the command line. Requires a yaml file
+like mine called `pcs.yaml` sitting in a subdirectory, called `yamls/` by
+default.
 
-Currently supports displaying loaded characters' positions in iniative order,
-setting initiative, and cycling through initiative via a keyboard-based
-interactive menu.
-
-* Define characters in a yaml file (formatted like `yamls/pcs.yaml`)
-* Use 'live-game.py' to show the status of these characters
-
-### Live-Game Options
+### Live-Game Features
 
 * Enter initiative for any character
 * Sort characters by initiative in descending order
