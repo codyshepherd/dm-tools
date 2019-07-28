@@ -41,7 +41,8 @@ COMMANDS = {
     'Cycle Initiative': lambda: handle_next(),
     'Defer Initiative': lambda: defer_initiative(),
     'Sort Initiative': lambda: sort_init_list(),
-    'Quit': lambda: sys.exit(0)
+    'Edit Status': lambda: edit_status(),
+    'Quit': lambda: sys.exit(0),
 }
 
 HELP_TEXT = {
@@ -63,6 +64,7 @@ ENTER_KEY = '\n'
 ESC_KEY = '`'
 FINAL_KEYS = [ENTER_KEY, ESC_KEY]
 INIT_CURSOR_INDEX = 0
+STATUS_CURSOR_INDEX = 0
 
 
 def add_character():
@@ -113,6 +115,53 @@ def display_help_text(text):
     HELP_PANEL.refresh()
 
 
+def edit_status():
+    display_help_text(HELP_TEXT['Nav L Cancel'])
+
+    key = ''
+    while key not in FINAL_KEYS + RIGHT_LEFT_KEYS:
+        key = navigate_status()
+
+    if key == ESC_KEY or key == RIGHT_LEFT_KEYS[1]:
+        clear_help_text()
+        return ESC_KEY
+
+    choice = GAME_STATE.pcs_status_list[STATUS_CURSOR_INDEX]
+    choice_list = choice.split()
+    choice_part = choice_list[0]
+
+    if choice_part == 'Name:':
+        pass
+    elif choice_part in Game.hearts:
+        # get HP update
+        change = get_input()
+        if not is_integer(change):
+            clear_help_text()
+            return 'non-integer input'
+
+        change_type = None
+        change_str = change
+        if change[0] == '-' or change[0] == '+':
+            change_type = change[0]
+            change = change[1:]
+        name = get_status_owner()
+
+        GAME_STATE.update_hp(name, change, change_type)
+
+        clear_help_text()
+        return ' '.join([name, change_str])
+
+    elif choice_part == Game.bang:
+        # add condition
+        pass
+    else:
+        # remove condition
+        pass
+
+    clear_help_text()
+    return ''
+
+
 def get_input():
     display_help_text(HELP_TEXT['Cancel'])
 
@@ -135,10 +184,28 @@ def get_input():
     return ret
 
 
+def get_status_owner():
+    tmp_index = STATUS_CURSOR_INDEX
+    part = GAME_STATE.pcs_status_list[tmp_index].split()[0]
+    while part != 'Name:':
+        tmp_index -= 1
+        part = GAME_STATE.pcs_status_list[tmp_index].split()[0]
+    line = GAME_STATE.pcs_status_list[tmp_index]
+    return ' '.join(line.split()[1:])
+
+
 def handle_next():
     GAME_STATE.next_initiative()
     INIT_BOX.clear()
     return ' '.join(GAME_STATE.initiative_list[0].split()[1:])
+
+
+def is_integer(s):
+    try:
+        int(s)
+        return True
+    except ValueError:
+        return False
 
 
 def max_len_append(new_item, the_list, max_len):
@@ -150,22 +217,44 @@ def max_len_append(new_item, the_list, max_len):
     return the_list
 
 
-def navigate(box, box_width, box_title):
+def navigate_initiative():
+    global INIT_BOX
     global INIT_CURSOR_INDEX
 
     key = ''
 
     while key not in FINAL_KEYS + RIGHT_LEFT_KEYS:
-        render_box_highlight_text(box, HEIGHT, box_width, box_title,
-                                  GAME_STATE.initiative_list,
+        render_box_highlight_text(INIT_BOX, HEIGHT, INIT_BOX_WIDTH,
+                                  INIT_BOX_TITLE, GAME_STATE.initiative_list,
                                   INIT_CURSOR_INDEX)
-        box.move(BOX_BUFFER_SPACES + INIT_CURSOR_INDEX, BOX_PADDING)
-        key = box.getkey()
+        INIT_BOX.move(BOX_BUFFER_SPACES + INIT_CURSOR_INDEX, BOX_PADDING)
+        key = INIT_BOX.getkey()
 
         if key in UP_DOWN_KEYS:
             INIT_CURSOR_INDEX = navkey_to_index(key,
                                                 GAME_STATE.initiative_list,
                                                 INIT_CURSOR_INDEX)
+
+    return key
+
+
+def navigate_status():
+    global STATUS_BOX
+    global STATUS_CURSOR_INDEX
+
+    key = ''
+
+    while key not in FINAL_KEYS + RIGHT_LEFT_KEYS:
+        render_box_highlight_text(STATUS_BOX, HEIGHT, STATUS_BOX_WIDTH,
+                                  STATUS_BOX_TITLE, GAME_STATE.pcs_status_list,
+                                  STATUS_CURSOR_INDEX)
+        STATUS_BOX.move(BOX_BUFFER_SPACES + STATUS_CURSOR_INDEX, BOX_PADDING)
+        key = STATUS_BOX.getkey()
+
+        if key in UP_DOWN_KEYS:
+            STATUS_CURSOR_INDEX = navkey_to_index(key,
+                                                  GAME_STATE.pcs_status_list,
+                                                  STATUS_CURSOR_INDEX)
 
     return key
 
@@ -188,7 +277,7 @@ def remove_character():
     display_help_text(HELP_TEXT['Nav L Cancel'])
     key = ''
     while key not in FINAL_KEYS + RIGHT_LEFT_KEYS[1:]:
-        key = navigate(INIT_BOX, INIT_BOX_WIDTH, INIT_BOX_TITLE)
+        key = navigate_initiative()
 
     if key == ESC_KEY or key == RIGHT_LEFT_KEYS[1]:
         clear_help_text()
@@ -247,7 +336,7 @@ def set_initiative():
 
     key = ''
     while key not in FINAL_KEYS + RIGHT_LEFT_KEYS:
-        key = navigate(INIT_BOX, INIT_BOX_WIDTH, INIT_BOX_TITLE)
+        key = navigate_initiative()
 
     if key == ESC_KEY or key == RIGHT_LEFT_KEYS[1]:
         clear_help_text()
@@ -308,6 +397,7 @@ def main(pcs, yaml_dir):
     MENU_BOX_WIDTH = max([len(x) for x in COMMANDS.keys()]) + BOX_BUFFER_SPACES
     MENU_BOX_HEIGHT = len(COMMANDS.keys()) + BOX_HEIGHT_PADDING
     STATUS_BOX_WIDTH = 40
+    LOG_BOX_WIDTH = (WIDTH // 3) - BOX_PADDING
 
     HELP_PANEL = curses.newwin(1, WIDTH, HEIGHT-2, 0)
 
@@ -344,7 +434,7 @@ def main(pcs, yaml_dir):
     while True:
         STDSCR.refresh()
         h, y = STDSCR.getmaxyx()
-        if h != HEIGHT and y != WIDTH:
+        if curses.is_term_resized(h, y):
             HEIGHT, WIDTH = h, y
             HEIGHT -= BOX_PADDING
             WIDTH -= BOX_PADDING
@@ -395,7 +485,7 @@ def main(pcs, yaml_dir):
         elif key == ENTER_KEY or RIGHT_LEFT_KEYS[0]:
             choice = cmds_list[cursor_index]
             extra = COMMANDS[choice]()
-            if choice == 'Set Initiative':
+            if choice == 'Set Initiative' or choice == 'Edit Status':
                 while extra != ESC_KEY:
                     keystrokes_list = max_len_append(' '.join([choice, extra]),
                                                      keystrokes_list,
@@ -420,6 +510,8 @@ def start(pcs, yaml_dir):
     try:
         STDSCR = curses.initscr()
         curses.start_color()
+        curses.use_default_colors()
+        curses.init_color(curses.COLOR_RED, 255, 0, 0)
         STDSCR.immedok(True)
 
         # The following options need to be reversed if they are enabled

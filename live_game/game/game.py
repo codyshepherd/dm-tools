@@ -3,13 +3,30 @@ import yaml
 
 
 class Character(object):
+    attributes = [
+            'name',
+            'hp',
+            'tmp_hp',
+            'conditions',
+    ]
 
     def __init__(self, argsdict):
         for k, v in argsdict.items():
             setattr(self, k, v)
+        for att in Character.attributes:
+            if argsdict.get(att, None) is None:
+                if att == 'tmp_hp' and argsdict.get('hp', None) is not None:
+                    setattr(self, att, argsdict['hp'])
+                else:
+                    setattr(self, att, '')
 
 
 class Game(object):
+    red_heart = chr(0x1f493)
+    yellow_heart = chr(0x1f49b)
+    green_heart = chr(0x1f49a)
+    hearts = [red_heart, yellow_heart, green_heart]
+    bang = chr(0x1f535)
 
     def __init__(self, **kwargs):
         self.pcs_yaml = kwargs.get('pcs_yaml')
@@ -34,6 +51,7 @@ class Game(object):
             self.pcs[char_name] = Character(char)
 
         self.make_initiative_list()
+        self.make_pcs_status_list()
 
     def add_character(self, name):
         self.pcs[name] = {'name': name}
@@ -97,7 +115,43 @@ class Game(object):
 
         self.make_initiative_list()
 
-    @property
-    def pcs_status_list(self):
+    def make_pcs_status_list(self):
         # type: () -> List[Text]
-        return self.pc_names
+        ret_list = []
+
+        for name in self.pc_names:
+            heart = Game.green_heart
+
+            ch = self.pcs[name]
+            hp = getattr(ch, 'hp')
+            tmp_hp = getattr(ch, 'tmp_hp')
+            frac = int(tmp_hp) // int(hp)
+            frac_text = f'{tmp_hp}/{hp}'
+            conditions = getattr(ch, 'conditions').split()
+
+            if frac < 1:
+                heart = Game.yellow_heart
+            elif frac < (1//2):
+                heart = Game.red_heart
+
+            ret_list.append(f'Name: {name}')
+            ret_list.append(f'  {heart} : {frac_text}')
+            ret_list.append(f'  {Game.bang}:')
+            for cond in conditions:
+                ret_list.append(f'    {cond}')
+
+        self.pcs_status_list = ret_list
+
+    def update_hp(self, name, change, update_type):
+        tmp_hp = int(self.pcs[name].tmp_hp)
+        change_int = int(change)
+        if update_type is None:
+            self.pcs[name].tmp_hp = change
+        elif update_type == '+':
+            self.pcs[name].tmp_hp = str(tmp_hp + change_int)
+        elif update_type == '-':
+            self.pcs[name].tmp_hp = str(tmp_hp - change_int)
+        else:
+            return
+
+        self.make_pcs_status_list()
