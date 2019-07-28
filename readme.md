@@ -1,13 +1,20 @@
 # DM Tools
 
+Requires python >= 3.6
+
 ## Setup Instructions
 
-* Create an activate a virtualenv using python3
+* Create and activate a virtualenv that uses python >= 3.6
   * I like to use virtualenvwrapper
-  * `mkvirtualenv -p $(which python3) venv`
+  * `mkvirtualenv -p $(which python3.7) venv`
   * `setvirtualenvproject`
 * Install requirements: `pip install -r requirements.txt`
 * The easiest way to use each tool is to cd into its directory before calling
+
+### Suite Goals
+
+- [ ] Top-level api (e.g. `dm-tools live-game`)
+- [ ] Package as snap
 
 ## live-game
 A tool for tracking of a play session.
@@ -33,8 +40,11 @@ interactive menu.
 Also features a log of past commands.
 
 ### Future Goals
-- [x] runtime with command prompt to track session
-- [ ] live update character HP, Conditions, and Inventories
+- [x] interactive runtime to track session
+- [ ] live update characters' status
+  - [x] HP
+  - [ ] Conditions
+  - [ ] Inventories
 - [x] set initiative / sort characters by initiative
 - [ ] roll dice
 - [ ] ingest monster file and generate random encounter by CR 

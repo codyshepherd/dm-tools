@@ -17,6 +17,8 @@ class Character(object):
             if argsdict.get(att, None) is None:
                 if att == 'tmp_hp' and argsdict.get('hp', None) is not None:
                     setattr(self, att, argsdict['hp'])
+                elif att in Character.attributes[1:3]:
+                    setattr(self, att, '1')
                 else:
                     setattr(self, att, '')
 
@@ -25,7 +27,8 @@ class Game(object):
     red_heart = chr(0x1f493)
     yellow_heart = chr(0x1f49b)
     green_heart = chr(0x1f49a)
-    hearts = [red_heart, yellow_heart, green_heart]
+    skull = chr(0x1f480)
+    hearts = [red_heart, yellow_heart, green_heart, skull]
     bang = chr(0x1f535)
 
     def __init__(self, **kwargs):
@@ -54,9 +57,11 @@ class Game(object):
         self.make_pcs_status_list()
 
     def add_character(self, name):
-        self.pcs[name] = {'name': name}
+        self.pcs[name] = Character({'name': name})
+
         self.pc_names.append(name)
         self.set_initiative(name, '0')
+        self.make_pcs_status_list()
 
     def remove_character(self, name):
         if self.pcs.get(name, None) is not None:
@@ -64,6 +69,7 @@ class Game(object):
             del self.initiative[name]
             self.pc_names.remove(name)
             self.make_initiative_list()
+            self.make_pcs_status_list()
 
     def defer_initiative(self):
         if len(self.initiative_list) < 2:
@@ -125,14 +131,16 @@ class Game(object):
             ch = self.pcs[name]
             hp = getattr(ch, 'hp')
             tmp_hp = getattr(ch, 'tmp_hp')
-            frac = int(tmp_hp) // int(hp)
+            frac = float(tmp_hp) / float(hp)
             frac_text = f'{tmp_hp}/{hp}'
             conditions = getattr(ch, 'conditions').split()
 
-            if frac < 1:
+            if frac < 1.0 and frac >= 0.5:
                 heart = Game.yellow_heart
-            elif frac < (1//2):
+            elif frac < 0.5 and frac != 0.0:
                 heart = Game.red_heart
+            elif frac == 0.0:
+                heart = Game.skull
 
             ret_list.append(f'Name: {name}')
             ret_list.append(f'  {heart} : {frac_text}')
@@ -144,13 +152,20 @@ class Game(object):
 
     def update_hp(self, name, change, update_type):
         tmp_hp = int(self.pcs[name].tmp_hp)
+        if update_type == 'set max':
+            change = change.split('.')[0]
+
         change_int = int(change)
+
         if update_type is None:
             self.pcs[name].tmp_hp = change
         elif update_type == '+':
             self.pcs[name].tmp_hp = str(tmp_hp + change_int)
         elif update_type == '-':
             self.pcs[name].tmp_hp = str(tmp_hp - change_int)
+        elif update_type == 'set max':
+            self.pcs[name].hp = str(int(change))
+            self.pcs[name].tmp_hp = str(int(change))
         else:
             return
 

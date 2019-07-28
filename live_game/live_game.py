@@ -135,7 +135,7 @@ def edit_status():
     elif choice_part in Game.hearts:
         # get HP update
         change = get_input()
-        if not is_integer(change):
+        if not is_integer(change) and not is_float(change):
             clear_help_text()
             return 'non-integer input'
 
@@ -144,6 +144,8 @@ def edit_status():
         if change[0] == '-' or change[0] == '+':
             change_type = change[0]
             change = change[1:]
+        elif is_float(change):
+            change_type = 'set max'
         name = get_status_owner()
 
         GAME_STATE.update_hp(name, change, change_type)
@@ -200,6 +202,16 @@ def handle_next():
     return ' '.join(GAME_STATE.initiative_list[0].split()[1:])
 
 
+def is_float(s):
+    try:
+        if not any([c == '.' for c in s]):
+            return False
+        float(s)
+        return True
+    except ValueError:
+        return False
+
+
 def is_integer(s):
     try:
         int(s)
@@ -220,6 +232,7 @@ def max_len_append(new_item, the_list, max_len):
 def navigate_initiative():
     global INIT_BOX
     global INIT_CURSOR_INDEX
+    INIT_BOX.clear()
 
     key = ''
 
@@ -241,6 +254,7 @@ def navigate_initiative():
 def navigate_status():
     global STATUS_BOX
     global STATUS_CURSOR_INDEX
+    STATUS_BOX.clear()
 
     key = ''
 
