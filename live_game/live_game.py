@@ -103,6 +103,8 @@ def defer_initiative():
     init_and_name_list = GAME_STATE.initiative_list[0].split()
     name = ' '.join(init_and_name_list[1:])
     GAME_STATE.defer_initiative()
+    INIT_BOX.clear()
+    INIT_BOX.refresh()
     return name
 
 
@@ -199,6 +201,7 @@ def get_status_owner():
 def handle_next():
     GAME_STATE.next_initiative()
     INIT_BOX.clear()
+    INIT_BOX.refresh()
     return ' '.join(GAME_STATE.initiative_list[0].split()[1:])
 
 
