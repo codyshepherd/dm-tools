@@ -63,7 +63,8 @@ class Game(object):
         self.pcs[name] = Character({'name': name})
 
         self.pc_names.append(name)
-        self.set_initiative(name, '0')
+        self.initiative_list.append(f'0 {name}')
+        self.initiative[name] = 0
         self.make_pcs_status_list()
 
     def remove_character(self, name):
@@ -113,9 +114,18 @@ class Game(object):
                                 k in temp]
 
     def make_initiative_list(self):
+        if not hasattr(self, 'initiative_list'):
+            sorted_pc_names = self.pc_names
+        else:
+            sorted_pc_names = []
+            for item in self.initiative_list:
+                name = ' '.join(item.split()[1:])
+                if name in self.pc_names:
+                    sorted_pc_names.append(name)
+
         self.initiative_list = [
             '{} {}'.format(self.initiative[name], name) for name in
-            self.pc_names]
+            sorted_pc_names]
 
     def set_initiative(self, name_expr, value):
         for name in self.pc_names:
