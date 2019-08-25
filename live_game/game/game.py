@@ -36,8 +36,8 @@ class Game(object):
 
         self.load_pcs()
 
-        if self.pcs == {}:
-            raise Exception("No characters found.")
+        #if self.pcs == {}:
+        #    raise Exception("No characters found.")
 
     def load_pcs(self):
         self.initiative = {}
@@ -45,6 +45,9 @@ class Game(object):
         self.pcs = {}
         with open(self.pcs_yaml, 'r') as fh:
             raw = yaml.load(fh, Loader=yaml.Loader)
+
+        if raw is None:
+            raw = ''
 
         for item in raw:
             char = item['character']

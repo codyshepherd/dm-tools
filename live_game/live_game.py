@@ -3,6 +3,7 @@
 import click
 import curses
 import curses.ascii
+import os
 import sys
 
 from game.game import Game
@@ -32,6 +33,8 @@ GAME_STATE = None
 HEIGHT = 0
 MAX_BUFFER_LEN = 128
 WIDTH = 0
+BASE_DIR = os.path.expanduser('.dm-tools')
+PCS_FILENAME = 'pcs.yaml'
 YAML_DIR = 'yamls'
 
 COMMANDS = {
@@ -382,7 +385,7 @@ def sort_init_list():
     return 'descending'
 
 
-def main(pcs, yaml_dir):
+def main(pcs):
     global STDSCR
     global INIT_BOX
     global INIT_BOX_WIDTH
@@ -401,8 +404,7 @@ def main(pcs, yaml_dir):
     global WIDTH
 
     kwargs = {}
-    YAML_DIR = yaml_dir
-    kwargs['pcs_yaml'] = '{}/{}'.format(YAML_DIR, pcs)
+    kwargs['pcs_yaml'] = pcs
 
     GAME_STATE = Game(**kwargs)
 
@@ -515,14 +517,27 @@ def main(pcs, yaml_dir):
 
 
 @click.command()
-@click.option('--pcs', type=click.Path(dir_okay=False, writable=True,
-              readable=True), default='pcs.yaml',
+@click.option('--pcs', '-p', type=click.Path(dir_okay=False,
+              writable=True, readable=True), default='{}/{}/{}'.format(
+                  BASE_DIR, YAML_DIR, PCS_FILENAME),
               help='name of alternate PCs file')
-@click.option('--yaml-dir', type=click.Path(exists=True, dir_okay=True,
-              file_okay=False, writable=True, readable=True), default='yamls',
-              help='path to alternate yaml dir')
-def start(pcs, yaml_dir):
+@click.option('--session-dir', '-d', type=click.Path(dir_okay=True,
+              file_okay=False, writable=True, readable=True),
+              default='{}/{}'.format(BASE_DIR, YAML_DIR),
+              help='path to alternate directory for writing session files')
+def start(pcs, session_dir):
     global STDSCR
+
+    if not os.path.exists(BASE_DIR):
+        os.mkdir(BASE_DIR)
+    if not os.path.exists(session_dir):
+        os.mkdir(session_dir)
+        YAML_DIR = session_dir
+        with open('{}/{}'.format(session_dir, PCS_FILENAME), 'w+') as fh:
+            fh.write('')
+    if not os.path.exists(pcs):
+        print("The file provided to --pcs must exist")
+        sys.exit(1)
 
     try:
         STDSCR = curses.initscr()
@@ -536,7 +551,7 @@ def start(pcs, yaml_dir):
         curses.noecho()   # turns off echoing of keys to screen
         curses.cbreak()   # react to keys instantly, don't wait for Enter
 
-        main(pcs, yaml_dir)
+        main(pcs)
     finally:
         # Terminate application
         curses.nocbreak()
