@@ -41,6 +41,7 @@ CURSOR_INDEX = 0
 
 INIT_OPTION_TUPLES = {
     'a': (lambda: add_character(), 'Add Character'),
+    'c': (lambda: clear_init(), 'Clear Initiative'),
     'd': (lambda: defer_initiative(), 'Defer Turn'),
     'n': (lambda: handle_next(), 'Next Character'),
     'r': (lambda: remove_character(), 'Remove Character'),
@@ -92,6 +93,12 @@ def clear_help_text():
     HELP_PANEL.clear()
     HELP_PANEL.addstr(0, BOX_PADDING, '')
     HELP_PANEL.refresh()
+
+
+def clear_init():
+    GAME_STATE.clear_init()
+    INIT_BOX.clear()
+    return 'Clear Initiative'
 
 
 def clear_refresh_all():
