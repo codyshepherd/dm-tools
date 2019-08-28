@@ -78,6 +78,8 @@ def gen_name(**kwargs):
         name_gen_function = name_gen.name_gen_normcore
     elif gen == 'pairs':
         name_gen_function = name_gen.name_gen_pairs
+    elif gen == 'phoneme':
+        name_gen_function = name_gen.name_gen_phonemes
 
     fn = {'first_last': 'first'}
     ln = {'first_last': 'last'}
@@ -168,9 +170,9 @@ FUNCTIONS = {
 @click.option('-y', '--yaml-dump', is_flag=True,
               help="Dump to yaml")
 @click.option('-g', '--name-generator',
-              type=click.Choice(['alt', 'norm', 'pairs', 'prob']),
+              type=click.Choice(['alt', 'norm', 'pairs', 'phoneme', 'prob']),
               help="The algorithm to use for generating names",
-              default='prob')
+              default='phoneme')
 def plebs(number, config_yaml, yaml_dump, name_generator):
     with open(config_yaml, 'r') as fh:
         config = yaml.safe_load(fh)

@@ -5,6 +5,8 @@ import re
 import string
 import yaml
 
+from . import phonemes
+
 VOWELS = ('a', 'e', 'i', 'o', 'u', 'y')
 CONSONANTS = tuple(l for l in string.ascii_lowercase if l not in VOWELS)
 LETTER_TYPES = (VOWELS, CONSONANTS)
@@ -48,7 +50,6 @@ def name_gen_prob(**kwargs):
 
 def name_gen_pairs(**kwargs):
     max_len = kwargs.get('max_len', 10)
-    print("name_gen_pairs")
     name = []
     name_len = random.randint(3, max_len)
     order = list(range(len(LETTER_TYPES)))
@@ -63,7 +64,6 @@ def name_gen_pairs(**kwargs):
 
 def name_gen_alternator(**kwargs):
     max_len = kwargs.get('max_len', 10)
-    print("name_gen_alternator")
     name = ''
     name_len = random.randint(3, max_len)
 
@@ -114,6 +114,13 @@ def name_gen_alternator(**kwargs):
                 cons_prob = init_cons_prob
 
     return name.capitalize()
+
+
+def name_gen_phonemes(**kwargs):
+    max_len = kwargs.get('max_len', 10)
+    name = ''
+    name_len = random.randint(3, max_len)
+    return phonemes.generate_string(name_len).capitalize()
 
 
 if __name__ == "__main__":
