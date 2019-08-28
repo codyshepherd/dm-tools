@@ -93,6 +93,22 @@ def pleb(race, **kwargs):
         p[attr] = val
     return p
 
+def stringify(d, pad=''):
+    if isinstance(d, str) or isinstance(d, int) or isinstance(d, float):
+        return pad + str(d)
+    elif isinstance(d, list):
+        return pad + ', '.join([stringify(i, pad + '  ') for i in d])
+    if isinstance(d, dict):
+        string = ''
+        for k, v in d.items():
+            enter = ''
+            k = stringify(k, pad)
+            v = stringify(v, pad + ' ')
+            if '\n' in v:
+                enter = '\n'
+            string += f'{k}:{enter}{v}\n'
+        return string
+
 
 @click.command()
 # @click.argument('target', type=click.Path(exists=True))
@@ -126,11 +142,12 @@ def plebs(number, config_yaml, yaml_dump, name_generator):
         race = numpy.random.choice(races, p=probs)
         p = pleb(race, **config)
         ps[p['name']] = p
+
+    string = stringify(ps)
+    print(string)
     if yaml_dump:
-        with open('plebs.yaml', 'w+') as fh:
-            fh.write(yaml.dump(ps))
-    else:
-        pprint.pprint(ps)
+        with open('plebs.txt', 'w+') as fh:
+            fh.write(string)
 
 
 if __name__ == '__main__':
