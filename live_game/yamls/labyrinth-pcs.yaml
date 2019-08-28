@@ -1,0 +1,20 @@
+- character:
+    name: Brunhilda Firehammer
+    hp: 35
+    conditions:
+- character:
+    name: Phobos Azar
+    hp: 10
+    conditions:
+- character:
+    name: Theara Volkian
+    hp: 18
+    conditions:
+- character:
+    name: Kalegon Fayarus
+    hp: 19
+    conditions:
+- character:
+    name: Ansal Goodreddy
+    hp: 35
+    conditions:

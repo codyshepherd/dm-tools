@@ -31,6 +31,7 @@ MAX_BUFFER_LEN = 128
 WIDTH = 0
 BASE_DIR = os.path.expanduser('.dm-tools')
 PCS_FILENAME = 'pcs.yaml'
+WRITE_CHANGES = True
 YAML_DIR = 'yamls'
 
 CUR_BOX = None
@@ -161,7 +162,7 @@ def edit_status(text=None):
             change_type = 'set max'
         name = get_status_owner()
 
-        GAME_STATE.update_hp(name, change, change_type)
+        GAME_STATE.update_hp(name, change, change_type, WRITE_CHANGES)
 
         STATUS_BOX.clear()
         return ' '.join([name, change_str])
@@ -365,7 +366,7 @@ def sort_init_list():
     return 'sort init descending'
 
 
-def main(pcs):
+def main(pcs, write_changes):
     global STDSCR
     global INIT_BOX
     global INIT_BOX_WIDTH
@@ -379,6 +380,7 @@ def main(pcs):
     global INPUT_PANEL
     global MAX_BUFFER_LEN
     global WIDTH
+    global WRITE_CHANGES
     global CUR_BOX
     global CUR_BOX_OPTIONS
     global CUR_BOX_TEXT
@@ -389,6 +391,9 @@ def main(pcs):
     kwargs['pcs_yaml'] = pcs
 
     GAME_STATE = Game(**kwargs)
+
+    if not write_changes:
+        WRITE_CHANGES = False
 
     HEIGHT, WIDTH = STDSCR.getmaxyx()
     HEIGHT -= BOX_PADDING
@@ -517,7 +522,10 @@ def main(pcs):
               file_okay=False, writable=True, readable=True),
               default='{}/{}'.format(BASE_DIR, YAML_DIR),
               help='path to alternate directory for writing session files')
-def start(pcs, session_dir):
+@click.option('--write-changes/--no-write-changes',
+              help="Write HP and status changes to original yaml",
+              default=True)
+def start(pcs, session_dir, write_changes):
     global STDSCR
 
     if not os.path.exists(BASE_DIR):
@@ -543,7 +551,7 @@ def start(pcs, session_dir):
         curses.noecho()   # turns off echoing of keys to screen
         curses.cbreak()   # react to keys instantly, don't wait for Enter
 
-        main(pcs)
+        main(pcs, write_changes)
     finally:
         # Terminate application
         curses.nocbreak()

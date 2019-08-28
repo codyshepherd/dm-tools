@@ -79,6 +79,7 @@ class Game(object):
         self.initiative_list = new_list
 
     def load_pcs(self):
+        self.conditions = {}
         self.initiative = {}
         self.pc_names = []
         self.pcs = {}
@@ -94,6 +95,10 @@ class Game(object):
             self.initiative[char_name] = '0'
             self.pc_names.append(char_name)
             self.pcs[char_name] = Character(char)
+            conds = char['conditions']
+            if conds is None:
+                conds = "None"
+            self.conditions[char_name] = conds if "None" not in conds else []
 
         self.make_initiative_list()
         self.make_pcs_status_list()
@@ -124,7 +129,7 @@ class Game(object):
             tmp_hp = getattr(ch, 'tmp_hp')
             frac = float(tmp_hp) / float(hp)
             frac_text = f'{tmp_hp}/{hp}'
-            conditions = getattr(ch, 'conditions').split()
+            conditions = getattr(ch, 'conditions')
 
             if frac < 1.0 and frac >= 0.5:
                 heart = Game.yellow_heart
@@ -168,7 +173,7 @@ class Game(object):
         self.initiative_list = ['{} {}'.format(self.initiative[k], k) for
                                 k in temp]
 
-    def update_hp(self, name, change, update_type):
+    def update_hp(self, name, change, update_type, write_changes):
         tmp_hp = int(self.pcs[name].tmp_hp)
         if update_type == 'set max':
             change = change.split('.')[0]
@@ -188,3 +193,23 @@ class Game(object):
             return
 
         self.make_pcs_status_list()
+
+        if write_changes:
+            self.write_state()
+
+    def write_state(self):
+        with open(self.pcs_yaml, 'r') as fh:
+            old = yaml.load(fh)
+
+        new = []
+        for entry in old:
+            character = entry['character']
+            name = character['name']
+            character['hp'] = self.pcs[name].hp
+            conds = self.conditions[name]
+            character['conditions'] = conds if conds is not None else 'None'
+            entry['character'] = character
+            new.append(entry)
+
+        with open(self.pcs_yaml, 'w') as fh:
+            yaml.dump(new, fh)
