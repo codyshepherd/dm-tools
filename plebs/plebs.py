@@ -44,6 +44,29 @@ def gen_hp(**kwargs):
     return reduce(lambda x, y: x+y, roll(*hit_die), 0)
 
 
+def gen_items(**kwargs):
+    content_dir = kwargs.get('content_dir', 'content')
+    items_file = kwargs.get('items', 'items.txt')
+    path = '/'.join([content_dir, items_file])
+
+    max_items = int(kwargs.get('max_items', 5))
+    num_items = numpy.random.randint(0, max_items)
+
+    with open(path, 'r') as fh:
+        items = fh.read()
+    items = items.split('\n')
+    num = len(items)-1
+
+    pleb_items = list()
+    for i in range(num_items):
+        choice = numpy.random.randint(0, num)
+        pleb_items.append(items[choice])
+
+    if len(pleb_items) < 1:
+        return "none"
+    return pleb_items
+
+
 def gen_name(**kwargs):
     name_gen_function = name_gen.name_gen_prob
 
@@ -74,6 +97,18 @@ def return_race(**kwargs):
     return kwargs['race']
 
 
+def gen_profession(**kwargs):
+    content_dir = kwargs.get('content_dir', 'content')
+    professions_file = kwargs.get('professions', 'professions.txt')
+    path = '/'.join([content_dir, professions_file])
+    with open(path, 'r') as fh:
+        profs = fh.read()
+    profs = profs.split('\n')
+    num = len(profs)-1
+    choice = numpy.random.randint(0, num)
+    return profs[choice]
+
+
 def gen_stats(**kwargs):
     stats = {}
     for stat in STATS:
@@ -86,18 +121,18 @@ def gen_stats(**kwargs):
 def pleb(race, **kwargs):
     kwargs['race'] = race
     p = {}
-    for attr in ATTRIBUTES.keys():
-        func = globals()[ATTRIBUTES[attr]]
+    for f in FUNCTIONS.keys():
+        func = FUNCTIONS[f]
         val = func(**kwargs)
-        kwargs[attr] = val
-        p[attr] = val
+        kwargs[f] = val
+        p[f] = val
     return p
 
 def stringify(d, pad=''):
     if isinstance(d, str) or isinstance(d, int) or isinstance(d, float):
         return pad + str(d)
     elif isinstance(d, list):
-        return pad + ', '.join([stringify(i, pad + '  ') for i in d])
+        return '\n'.join([stringify(i, pad) for i in d])
     if isinstance(d, dict):
         string = ''
         for k, v in d.items():
@@ -108,6 +143,18 @@ def stringify(d, pad=''):
                 enter = '\n'
             string += f'{k}:{enter}{v}\n'
         return string
+
+
+FUNCTIONS = {
+  'age': gen_age,
+  'gender': gen_gender,
+  'hp': gen_hp,
+  'name': gen_name,
+  'race': return_race,
+  'stats': gen_stats,
+  'items': gen_items,
+  'profession': gen_profession,
+}
 
 
 @click.command()

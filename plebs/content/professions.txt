@@ -1,0 +1,56 @@
+Rope maker
+Tanner
+Hunter
+Dairy farmer
+Saddler
+Stablehand
+Fisherman
+Woodworker
+Lumberjack
+Small game trapper
+Wheat farmer
+Corn farmer
+Shepherd
+Cleaning man at the tavern
+Baker's apprentice
+Horse stall mucker
+Trash collector
+Unemployed
+Leather goods apprentice
+Butcher
+Lantern maker
+Village idiot
+Miller
+Fishmonger
+Falconer
+Plowman
+Stonemason
+Mason
+Watchman
+Wheelwright
+Roofer
+Locksmith's apprentice
+Tanner
+Tax Collector
+Belt Maker
+Merchant
+Carpenter
+Cook
+Blacksmith
+Furrier
+Weaver
+Brewer
+Gongfarmer
+Busker
+Cobbler
+Barrel Maker
+Pickler
+Cartwright
+Minstrel (flute)
+Public bath house attendant
+Well digger
+Gatekeeper
+Guard
+Lamplighter
+Pig farmer
+Vinegar maker

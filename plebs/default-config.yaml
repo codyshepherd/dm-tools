@@ -21,3 +21,7 @@ genders:                # a list of genders with their probabilities summing
 youngest: 16
 oldest: 45
 hit_die: [4,4] # the hit dice of your NPCs, in this case 4d4
+items: 'items.txt'
+max_items: 5
+professions: 'professions.txt'
+content_dir: 'content'
