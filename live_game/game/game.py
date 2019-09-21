@@ -41,11 +41,13 @@ class Game(object):
 
     def add_character(self, name):
         self.pcs[name] = Character({'name': name})
+        self.conditions[name] = []
 
         self.pc_names.append(name)
         self.initiative_list.append(f'0 {name}')
         self.initiative[name] = 0
         self.make_pcs_status_list()
+        self.write_state()
 
     def clear_init(self):
         for char in self.pcs.keys():
@@ -158,6 +160,7 @@ class Game(object):
             self.pc_names.remove(name)
             self.make_initiative_list()
             self.make_pcs_status_list()
+            self.write_state()
 
     def set_initiative(self, name_expr, value):
         for name in self.pc_names:
@@ -198,18 +201,16 @@ class Game(object):
             self.write_state()
 
     def write_state(self):
-        with open(self.pcs_yaml, 'r') as fh:
-            old = yaml.load(fh)
-
         new = []
-        for entry in old:
-            character = entry['character']
-            name = character['name']
+        for name in self.pcs.keys():
+            entry = {}
+            character = {}
+            character['name'] = name
             character['hp'] = self.pcs[name].hp
-            conds = self.conditions[name]
+            conds = self.conditions.get(name, None)
             character['conditions'] = conds if conds is not None else 'None'
             entry['character'] = character
             new.append(entry)
 
-        with open(self.pcs_yaml, 'w') as fh:
+        with open(self.pcs_yaml, 'w+') as fh:
             yaml.dump(new, fh)
