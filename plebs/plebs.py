@@ -48,9 +48,11 @@ def gen_items(**kwargs):
     content_dir = kwargs.get('content_dir', 'content')
     items_file = kwargs.get('items', 'items.txt')
     path = '/'.join([content_dir, items_file])
+    num_items = kwargs.get('num_items', None)
 
     max_items = int(kwargs.get('max_items', 5))
-    num_items = numpy.random.randint(0, max_items)
+    if num_items is None:
+        num_items = numpy.random.randint(0, max_items)
 
     with open(path, 'r') as fh:
         items = fh.read()
