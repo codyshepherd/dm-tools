@@ -1,6 +1,9 @@
 import re
 import yaml
 
+from api.api import Api
+from string import digits
+
 
 class Character(object):
     attributes = [
@@ -17,10 +20,17 @@ class Character(object):
             if argsdict.get(att, None) is None:
                 if att == 'tmp_hp' and argsdict.get('hp', None) is not None:
                     setattr(self, att, argsdict['hp'])
+                elif att == 'tmp_hp' and getattr(self, 'hp', None) is not None:
+                    setattr(self, att, self.hp)
                 elif att in Character.attributes[1:3]:
-                    setattr(self, att, '1')
+                    hp = argsdict.get('hp', 0)
+                    hp = hp if hp > 0 else 1
+                    setattr(self, att, str(hp))
                 else:
                     setattr(self, att, '')
+
+    def edit_name(self, newname):
+        setattr(self, 'name', newname)
 
 
 class Game(object):
@@ -32,6 +42,7 @@ class Game(object):
     bang = chr(0x1f535)
 
     def __init__(self, **kwargs):
+        self.api = Api()
         self.pcs_yaml = kwargs.get('pcs_yaml')
 
         self.load_pcs()
@@ -40,7 +51,19 @@ class Game(object):
         #    raise Exception("No characters found.")
 
     def add_character(self, name):
-        self.pcs[name] = Character({'name': name})
+        hp = self.api.monster_hp(name)
+        character = Character({'name': name, 'hp': hp})
+        while name in self.pcs.keys():
+            last_digit_string = ''.join(filter(str.isdigit, name))
+            if len(last_digit_string) > 0:
+                name = name.rstrip(digits)
+                last_digit = int(last_digit_string)
+                name = name + str(last_digit + 1)
+            else:
+                name = name + '1'
+        
+        character.edit_name(name)
+        self.pcs[name] = character
         self.conditions[name] = []
 
         self.pc_names.append(name)
