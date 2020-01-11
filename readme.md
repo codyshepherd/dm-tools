@@ -1,6 +1,6 @@
 # DM Tools
 
-Requires python >= 3.6
+Requires python >= 3.6 and a Bash shell
 
 ## Setup Instructions
 
@@ -19,9 +19,7 @@ Requires python >= 3.6
 ## live-game
 A tool for tracking of a play session.
 
-Run with `./live-game.py` at the command line. Requires a yaml file
-like mine called `pcs.yaml` sitting in a subdirectory, called `yamls/` by
-default.
+Run with `./live-game.py` at the command line.
 
 ### Live-Game Features
 
@@ -30,21 +28,26 @@ default.
 * Cycle through characters in initiative order
 * Defer initiative until end of turn
 * Add/remove characters to/from list on the fly
+* Display and edit current and max HP for all combatants
+  * HP is automatically populated from the web for D&D 5e SRD monsters
 
 Also features a log of past commands.
 
 ### Future Goals
 - [x] interactive runtime to track session
+- [ ] collapsible & scrollable columns
 - [ ] live update characters' status
-  - [x] HP
+  - [x] Max and current HP
+  - [ ] Display names and creature type together
   - [ ] Conditions
   - [ ] Inventories
 - [x] set initiative / sort characters by initiative
 - [ ] roll dice
-- [ ] ingest monster file and generate random encounter by CR 
+  - [ ] with modifiers
+- [ ] generate random encounter by CR 
 
-## plebs
-Call this script to generate an arbitary number of NPCs from arbitrary races.
+## plebs (and pockets)
+Call `./plebs.py` to generate an arbitary number of NPCs from arbitrary races.
 The generator can be configured by passing an alternate config.yaml, with
 `default-config.yaml` as an example.
 
@@ -60,14 +63,21 @@ Currently produces the following stats for a given NPC:
 - stats (D&D 5e standard stats)
 - hp
 - gender
+- occupation
+- trinkets carried
 
 ### Goals
 - [ ] Adjustments of stats and hp for races
 - [ ] Allow modifiers
 - [x] Better names
-- [ ] Occupations
-- [ ] Items carried
+- [x] Occupations
+- [x] Items carried
 - [ ] Attack & defense capabilities
+
+### pockets
+
+This script generates N random trinkets, most made up, but some inspired by
+trinkets from the PHB and Curse of Strahd lists.
 
 ## populate
 A tool for inserting player- or situation-specific text into document
