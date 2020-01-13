@@ -41,14 +41,31 @@ class Game(object):
     hearts = [red_heart, yellow_heart, green_heart, skull]
     bang = chr(0x1f535)
 
+    condition_emoji = {
+        'blinded': chr(0x1f441),
+        'charmed': chr(0x1f495),
+        'deafened': chr(0x1f442),
+        'fatigued': chr(0x27b0),
+        'frightened': chr(0x203c),
+        'grappled': chr(0x270a),
+        'incapacitated': chr(0x274c),
+        'invisible': chr(0x1f441),
+        'paralyzed': chr(0x23f8),
+        'petrified': chr(0x1f48e),
+        'poisoned': chr(0x1f9ea),
+        'prone': chr(0x1f744),
+        'restrained': chr(0x26d3),
+        'stunned': chr(0x1f4ab),
+        'unconscious': chr(0x1f4a4),
+        'exhaustion': chr(0x27bf),
+        'inspiration': chr(0x2b50),
+    }
+
     def __init__(self, **kwargs):
         self.api = Api()
         self.pcs_yaml = kwargs.get('pcs_yaml')
 
         self.load_pcs()
-
-        #if self.pcs == {}:
-        #    raise Exception("No characters found.")
 
     def add_character(self, name):
         hp = self.api.monster_hp(name)
@@ -64,7 +81,7 @@ class Game(object):
         
         character.edit_name(name)
         self.pcs[name] = character
-        self.conditions[name] = []
+        self.conditions[name] = ''
 
         self.pc_names.append(name)
         self.initiative_list.append(f'0 {name}')
@@ -120,10 +137,8 @@ class Game(object):
             self.initiative[char_name] = '0'
             self.pc_names.append(char_name)
             self.pcs[char_name] = Character(char)
-            conds = char['conditions']
-            if conds is None:
-                conds = "None"
-            self.conditions[char_name] = conds if "None" not in conds else []
+            conds = char.get('conditions', '')
+            self.conditions[char_name] = conds
 
         self.make_initiative_list()
         self.make_pcs_status_list()
@@ -154,7 +169,7 @@ class Game(object):
             tmp_hp = getattr(ch, 'tmp_hp')
             frac = float(tmp_hp) / float(hp)
             frac_text = f'{tmp_hp}/{hp}'
-            conditions = getattr(ch, 'conditions')
+            conditions = getattr(ch, 'conditions', '')
 
             if frac < 1.0 and frac >= 0.5:
                 heart = Game.yellow_heart
@@ -165,9 +180,8 @@ class Game(object):
 
             ret_list.append(f'Name: {name}')
             ret_list.append(f'  {heart} : {frac_text}')
-            ret_list.append(f'  {Game.bang}:')
-            for cond in conditions:
-                ret_list.append(f'    {cond}')
+            cond_string = ''
+            ret_list.append(f'  {Game.bang}: {conditions}')
 
         self.pcs_status_list = ret_list
 
@@ -184,6 +198,31 @@ class Game(object):
             self.make_initiative_list()
             self.make_pcs_status_list()
             self.write_state()
+
+    def remove_condition(self, name, cond):
+        for k, v in Game.condition_emoji.items():
+            if v == cond:
+                conditions = self.pcs[name].conditions
+                conditions = ' '.join([c for c in conditions if (c != ' ' and c != cond)])
+                self.pcs[name].conditions = conditions
+                self.make_pcs_status_list()
+                self.write_state()
+                return k
+        return f'{cond} not found'
+
+    def set_condition(self, name_expr, cond):
+        cond = cond.lower()
+        if cond not in Game.condition_emoji:
+            return 'condition not found'
+        for name in self.pc_names:
+            if re.match(name_expr, name):
+                conds = self.pcs[name].conditions
+                emoji = Game.condition_emoji[cond]
+                if emoji not in conds:
+                    self.pcs[name].conditions = (conds + ' ' + emoji).strip()
+                    self.make_pcs_status_list()
+                    self.write_state()
+                return name
 
     def set_initiative(self, name_expr, value):
         for name in self.pc_names:
@@ -230,8 +269,7 @@ class Game(object):
             character = {}
             character['name'] = name
             character['hp'] = self.pcs[name].hp
-            conds = self.conditions.get(name, None)
-            character['conditions'] = conds if conds is not None else 'None'
+            character['conditions'] = self.pcs[name].conditions
             entry['character'] = character
             new.append(entry)
 

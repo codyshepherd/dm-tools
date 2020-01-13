@@ -57,12 +57,15 @@ INIT_OPTION_TUPLES = {
 
 STATUS_OPTION_TUPLES = {
     'a': (lambda: add_character(), 'Add Character'),
+    'c': (lambda: add_condition(), 'Condition Add'),
+    'd': (lambda: delete_condition(), 'Delete Condition'),
     'r': (lambda: remove_char_statusbox_wrapper(), 'Remove Character'),
 }
 
 HELP_TEXT = {
     'Add': 'Add Character: Enter name',
     'Cancel': 'Hit `\u0331 (backtick) to Cancel',
+    'Conditions': 'Enter a condition',
     'Quit': 'Hit q\u0331 to Quit',
     INIT_BOX_TITLE: '  '.join([k+'\u0331: {}'.format(v[1]) for k,v in
                                INIT_OPTION_TUPLES.items()]),
@@ -96,6 +99,25 @@ def add_character():
     INIT_BOX.clear()
     STATUS_BOX.clear()
     return f'Add {name}'
+
+
+def add_condition():
+    cond = get_input(helptext=HELP_TEXT['Conditions'])
+    if len(cond) < 1:
+        return "no input"
+
+    name = edit_status(text=cond)
+    return f'added condition {cond} to {name}'
+
+
+def adjust_box_indices(box, lower_val, upper_val):
+    global STATUS_LIST_LOWER_INDEX
+    global STATUS_LIST_UPPER_INDEX
+    if box == INIT_BOX:
+        pass
+    elif box == STATUS_BOX:
+        STATUS_LIST_LOWER_INDEX = lower_val
+        STATUS_LIST_UPPER_INDEX = upper_val
 
 
 def clear_help_text():
@@ -134,6 +156,11 @@ def defer_initiative():
     return f'defer: {name}'
 
 
+def delete_condition():
+    cond, name = edit_status(remove=True)
+    return f'remove condition {cond} from {name}'
+
+
 def display_help_text(text):
     HELP_PANEL.clear()
     if len(text) > MAX_BUFFER_LEN:
@@ -143,7 +170,7 @@ def display_help_text(text):
     HELP_PANEL.refresh()
 
 
-def edit_status(text=None):
+def edit_status(text=None, remove=False):
 
     choice = GAME_STATE.pcs_status_list[CURSOR_INDEX]
     choice_list = choice.split()
@@ -175,12 +202,32 @@ def edit_status(text=None):
         STATUS_BOX.clear()
         return ' '.join([name, change_str])
 
-    elif choice_part == Game.bang:
+    elif Game.bang in choice_part and not remove:
         # add condition
-        return 'Managing conditions not implemented'
+        name = get_status_owner()
+        msg = GAME_STATE.set_condition(name, text)
+        STATUS_BOX.clear()
+        return msg
     else:
         # remove condition
-        return 'Managing conditions not implemented'
+        name = get_status_owner()
+        if len(choice_list) > 1:
+            conds = choice_list[1]
+        else:
+            conds = ''
+
+        if len(conds) < 1:
+            return 'none', 'no-one'
+
+        # move cursor to condiitons array
+        conds_string = choice.strip()[3:]
+        bang_len = 6
+        cond_to_remove = nav_horizontal(conds_string, bang_len)
+        if cond_to_remove == '':
+            return 'canceled', 'nobody'
+        cond_name = GAME_STATE.remove_condition(name, cond_to_remove)
+        STATUS_BOX.clear()
+        return cond_name, name
 
 
 def execute_box_choice(text):
@@ -288,14 +335,26 @@ def max_len_append(new_item, the_list, max_len):
     return the_list
 
 
-def adjust_box_indices(box, lower_val, upper_val):
-    global STATUS_LIST_LOWER_INDEX
-    global STATUS_LIST_UPPER_INDEX
-    if box == INIT_BOX:
-        pass
-    elif box == STATUS_BOX:
-        STATUS_LIST_LOWER_INDEX = lower_val
-        STATUS_LIST_UPPER_INDEX = upper_val
+def nav_horizontal(string, horiz_buffer):
+    buf = 0
+    CUR_BOX.move(BOX_BUFFER_SPACES + CURSOR_INDEX, BOX_PADDING+horiz_buffer+buf)
+    display_help_text('; '.join([HELP_TEXT['Cancel'], '']))
+    key = CUR_BOX.getkey()
+    len_string = len(string)
+    while key not in FINAL_KEYS:
+        if key in RIGHT_LEFT_KEYS:
+            if key == 'KEY_RIGHT' and buf < len_string:
+                buf += 1
+            elif key == 'KEY_LEFT' and buf > 0:
+                buf -= 1
+        CUR_BOX.move(BOX_BUFFER_SPACES + CURSOR_INDEX, BOX_PADDING+horiz_buffer+buf)
+        key = CUR_BOX.getkey()
+    if key == ENTER_KEY:
+        if string[buf] == ' ':
+            return string[buf-1]
+        return string[buf]
+    else:
+        return ''
 
 
 def navkey_to_index(keystroke, menu_list, cursor_index, box):

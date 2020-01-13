@@ -30,16 +30,23 @@ Run with `./live-game.py` at the command line.
 * Add/remove characters to/from list on the fly
 * Display and edit current and max HP for all combatants
   * HP is automatically populated from the web for D&D 5e SRD monsters
+* Display and edit combatant conditions
+  * D&D 5e conditions, plus Inspiration, are supported
+  * currently this requires typing in the full name of the condition; a better
+    interface would be nice
 
 Also features a log of past commands.
 
 ### Future Goals
 - [x] interactive runtime to track session
-- [ ] collapsible & scrollable columns
+- [ ] collapsible column entries
+- [x] scrollable column text
 - [ ] live update characters' status
   - [x] Max and current HP
   - [ ] Display names and creature type together
-  - [ ] Conditions
+  - [x] add and remove Conditions
+  - [ ] Some type of menu for adding conditions
+  - [ ] Clear all conditions
   - [ ] Inventories
 - [x] set initiative / sort characters by initiative
 - [ ] roll dice
