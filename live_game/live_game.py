@@ -338,23 +338,34 @@ def max_len_append(new_item, the_list, max_len):
 
 
 def nav_horizontal(string, horiz_buffer):
+    # necessary to keep index and buf separate, because emojis are length
+    # of 1, though ncurses displays them with length of 2
+    index = 0
     buf = 0
     CUR_BOX.move(BOX_BUFFER_SPACES + CURSOR_INDEX, BOX_PADDING+horiz_buffer+buf)
-    display_help_text('; '.join([HELP_TEXT['Cancel'], '']))
+    display_help_text('; '.join([HELP_TEXT['Cancel'], 'Enter a condition']))
     key = CUR_BOX.getkey()
     len_string = len(string)
     while key not in FINAL_KEYS:
         if key in RIGHT_LEFT_KEYS:
-            if key == 'KEY_RIGHT' and buf < len_string:
-                buf += 1
-            elif key == 'KEY_LEFT' and buf > 0:
-                buf -= 1
+            if key == 'KEY_RIGHT' and index < len_string-1:
+                if string[index] != ' ':
+                    buf += 2
+                else:
+                    buf += 1
+                index += 1
+            elif key == 'KEY_LEFT' and index > 0:
+                if string[index] != ' ':
+                    buf -= 1
+                else:
+                    buf -= 2
+                index -= 1
         CUR_BOX.move(BOX_BUFFER_SPACES + CURSOR_INDEX, BOX_PADDING+horiz_buffer+buf)
         key = CUR_BOX.getkey()
     if key == ENTER_KEY:
-        if string[buf] == ' ':
-            return string[buf-1]
-        return string[buf]
+        if string[index] == ' ':
+            return string[index-1]
+        return string[index]
     else:
         return ''
 

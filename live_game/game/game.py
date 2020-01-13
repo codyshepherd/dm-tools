@@ -46,15 +46,15 @@ class Game(object):
         'charmed': chr(0x1f495),
         'deafened': chr(0x1f442),
         'fatigued': chr(0x27b0),
-        'frightened': chr(0x203c),
+        'frightened': chr(0x1f3c3),
         'grappled': chr(0x270a),
         'incapacitated': chr(0x274c),
-        'invisible': chr(0x1f441),
-        'paralyzed': chr(0x23f8),
+        'invisible': chr(0x1f440),
+        'paralyzed': chr(0x26a1),
         'petrified': chr(0x1f48e),
         'poisoned': chr(0x1f9ea),
-        'prone': chr(0x1f744),
-        'restrained': chr(0x26d3),
+        'prone': chr(0x1f938),
+        'restrained': chr(0x1f517),
         'stunned': chr(0x1f4ab),
         'unconscious': chr(0x1f4a4),
         'exhaustion': chr(0x27bf),
@@ -180,7 +180,6 @@ class Game(object):
 
             ret_list.append(f'Name: {name}')
             ret_list.append(f'  {heart} : {frac_text}')
-            cond_string = ''
             ret_list.append(f'  {Game.bang}: {conditions}')
 
         self.pcs_status_list = ret_list
