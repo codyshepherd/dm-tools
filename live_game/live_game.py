@@ -89,13 +89,15 @@ FINAL_KEYS = [ENTER_KEY, ESC_KEY]
 
 
 def add_character():
-    global CUR_BOX_TEXT
+    global STATUS_LIST_UPPER_INDEX
     name = get_input(helptext=HELP_TEXT['Add'])
     if len(name) < 1:
         return "no input"
 
     GAME_STATE.add_character(name)
-    CUR_BOX_TEXT = GAME_STATE.initiative_list
+    for i in range(3):
+        if STATUS_LIST_UPPER_INDEX - STATUS_LIST_LOWER_INDEX <= STATUS_CURSOR_MAX_UPPER:
+            STATUS_LIST_UPPER_INDEX += 1
     INIT_BOX.clear()
     STATUS_BOX.clear()
     return f'Add {name}'
@@ -403,6 +405,8 @@ def navkey_to_index(keystroke, menu_list, cursor_index, box):
 def remove_character(name=None):
     global CURSOR_INDEX
     global CUR_BOX_TEXT
+    global STATUS_LIST_UPPER_INDEX
+    global STATUS_LIST_LOWER_INDEX
     if name is None or name not in GAME_STATE.pc_names:
         init_and_name_list = GAME_STATE.initiative_list[CURSOR_INDEX].split()
         name = ' '.join(init_and_name_list[1:])
@@ -414,14 +418,16 @@ def remove_character(name=None):
         CUR_BOX_TEXT = GAME_STATE.pcs_status_list
     if CURSOR_INDEX >= len(CUR_BOX_TEXT):
         CURSOR_INDEX = len(CUR_BOX_TEXT)-1
-    CUR_BOX_TEXT = GAME_STATE.initiative_list
+    STATUS_LIST_UPPER_INDEX -= 3
+    if STATUS_LIST_LOWER_INDEX > 2:
+        STATUS_LIST_LOWER_INDEX -= 3
     INIT_BOX.clear()
     STATUS_BOX.clear()
     return f'remove: {name}'
 
 
 def remove_char_statusbox_wrapper():
-    choice = GAME_STATE.pcs_status_list[CURSOR_INDEX]
+    choice = GAME_STATE.pcs_status_list[CURSOR_INDEX+STATUS_LIST_LOWER_INDEX]
     choice_list = choice.split()
     choice_part = choice_list[0]
 
