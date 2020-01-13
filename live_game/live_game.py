@@ -13,9 +13,14 @@ STDSCR = None
 INIT_BOX = None
 INIT_BOX_TITLE = "Initiative Tracker"
 INIT_BOX_WIDTH = 0
+INIT_LIST_LOWER_INDEX = 0
+INIT_LIST_UPPER_INDEX = 0
 STATUS_BOX = None
 STATUS_BOX_TITLE = "Status"
 STATUS_BOX_WIDTH = 0
+STATUS_LIST_LOWER_INDEX = 0
+STATUS_LIST_UPPER_INDEX = 0
+STATUS_CURSOR_MAX_UPPER = 0
 LOG_BOX = None
 LOG_BOX_TITLE = "Log"
 LOG_BOX_WIDTH = 0
@@ -23,6 +28,7 @@ HELP_PANEL = None
 INPUT_PANEL = None
 
 BOX_BUFFER_SPACES = 4
+BOX_BOTTOM_BUFFER = 3
 BOX_HEIGHT_PADDING = 5
 BOX_PADDING = 2
 GAME_STATE = None
@@ -282,11 +288,51 @@ def max_len_append(new_item, the_list, max_len):
     return the_list
 
 
-def navkey_to_index(keystroke, menu_list, cursor_index):
+def adjust_box_indices(box, lower_val, upper_val):
+    global STATUS_LIST_LOWER_INDEX
+    global STATUS_LIST_UPPER_INDEX
+    if box == INIT_BOX:
+        pass
+    elif box == STATUS_BOX:
+        STATUS_LIST_LOWER_INDEX = lower_val
+        STATUS_LIST_UPPER_INDEX = upper_val
+
+
+def navkey_to_index(keystroke, menu_list, cursor_index, box):
+    len_list = len(menu_list)
+    if box == INIT_BOX:
+        relevant_lower = INIT_LIST_LOWER_INDEX
+        relevant_upper = INIT_LIST_UPPER_INDEX
+        relevant_max = STATUS_CURSOR_MAX_UPPER
+    else:
+        relevant_lower = STATUS_LIST_LOWER_INDEX
+        relevant_upper = STATUS_LIST_UPPER_INDEX
+        relevant_max = STATUS_CURSOR_MAX_UPPER
+
     if keystroke == 'KEY_UP' and cursor_index <= 0:
-        return len(menu_list)-1
-    elif keystroke == 'KEY_DOWN' and cursor_index >= len(menu_list)-1:
+        box.clear()
+        if relevant_lower <= 0:
+            if len_list < relevant_max:
+                return len_list-1
+            else:
+                adjust_box_indices(box, len_list-1-relevant_max, len_list)
+                box.clear()
+                return relevant_max
+        else:
+            adjust_box_indices(box, relevant_lower-1, relevant_upper-1)
+            box.clear()
+            return 0
+    elif keystroke == 'KEY_DOWN' and (cursor_index >= len_list-1 or \
+         (len_list == relevant_max+1 and cursor_index >= relevant_upper-1) or \
+         (len_list > relevant_max+1 and cursor_index >= relevant_max and relevant_upper == len_list)):
+        adjust_box_indices(box, 0, relevant_max+1)
+        box.clear()
         return 0
+    elif keystroke == 'KEY_DOWN' and cursor_index >= relevant_max and \
+            relevant_upper < len_list:
+        adjust_box_indices(box, relevant_lower+1, relevant_upper+1)
+        box.clear()
+        return cursor_index
     elif keystroke == 'KEY_UP':
         return cursor_index - 1
     elif keystroke == 'KEY_DOWN':
@@ -334,6 +380,8 @@ def render_box(box, height, width, title, strings):
     box.addstr(BOX_PADDING, 1, ''.join('-' for i in range(width-BOX_PADDING)))
     start = BOX_BUFFER_SPACES
     for string in strings:
+        if start == height-BOX_BOTTOM_BUFFER:
+            break
         try:
             if len(string) >= width-BOX_BUFFER_SPACES:
                 box.addstr(start,
@@ -376,6 +424,9 @@ def main(pcs, write_changes):
     global INIT_BOX_WIDTH
     global STATUS_BOX
     global STATUS_BOX_WIDTH
+    global STATUS_LIST_LOWER_INDEX
+    global STATUS_LIST_UPPER_INDEX
+    global STATUS_CURSOR_MAX_UPPER
     global LOG_BOX
     global LOG_BOX_WIDTH
     global GAME_STATE
@@ -421,6 +472,12 @@ def main(pcs, write_changes):
                                INIT_BOX_WIDTH + 2)
     STATUS_BOX.immedok(True)
     STATUS_BOX.keypad(True)
+    STATUS_BOX.scrollok(True)
+    STATUS_BOX.idlok(True)
+    STATUS_CURSOR_MAX_UPPER = HEIGHT - (BOX_HEIGHT_PADDING + BOX_BOTTOM_BUFFER)
+    STATUS_LIST_UPPER_INDEX = len(GAME_STATE.pcs_status_list) if \
+        len(GAME_STATE.pcs_status_list) <= STATUS_CURSOR_MAX_UPPER else \
+        STATUS_CURSOR_MAX_UPPER + 1
 
     CUR_BOX = INIT_BOX
     CUR_BOX_OPTIONS = INIT_OPTION_TUPLES
@@ -472,7 +529,7 @@ def main(pcs, write_changes):
         render_box(INIT_BOX, HEIGHT, INIT_BOX_WIDTH, INIT_BOX_TITLE,
                    GAME_STATE.initiative_list)
         render_box(STATUS_BOX, HEIGHT, STATUS_BOX_WIDTH, STATUS_BOX_TITLE,
-                   GAME_STATE.pcs_status_list)
+                   GAME_STATE.pcs_status_list[STATUS_LIST_LOWER_INDEX: STATUS_LIST_UPPER_INDEX])
         render_box(LOG_BOX, HEIGHT, LOG_BOX_WIDTH, LOG_BOX_TITLE,
                    keystrokes_list)
         render_input_panel()
@@ -485,7 +542,7 @@ def main(pcs, write_changes):
         key = CUR_BOX.getkey()
 
         if key in UP_DOWN_KEYS:
-            CURSOR_INDEX = navkey_to_index(key, CUR_BOX_TEXT, CURSOR_INDEX)
+            CURSOR_INDEX = navkey_to_index(key, CUR_BOX_TEXT, CURSOR_INDEX, CUR_BOX)
         elif key.lower() == 'q':
             sys.exit(0)
         elif key in RIGHT_LEFT_KEYS:

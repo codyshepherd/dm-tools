@@ -23,7 +23,7 @@ class Character(object):
                 elif att == 'tmp_hp' and getattr(self, 'hp', None) is not None:
                     setattr(self, att, self.hp)
                 elif att in Character.attributes[1:3]:
-                    hp = argsdict.get('hp', 0)
+                    hp = argsdict.get('hp', 1)
                     hp = hp if hp > 0 else 1
                     setattr(self, att, str(hp))
                 else:

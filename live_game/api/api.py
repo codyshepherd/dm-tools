@@ -23,5 +23,5 @@ class Api(object):
         success = self.get_monster(name)
 
         if not success:
-            return 0
-        return self.monster_cache[name].get('hit_points', 0)
+            return 1
+        return self.monster_cache[name].get('hit_points', 1)
