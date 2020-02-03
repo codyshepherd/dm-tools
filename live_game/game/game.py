@@ -1,7 +1,7 @@
 import re
 import yaml
 
-from api.api import Api
+import api.api as api
 from string import digits
 
 
@@ -11,6 +11,9 @@ class Character(object):
             'hp',
             'tmp_hp',
             'conditions',
+            'immunities',
+            'resistances',
+            'vulnerabilities',
     ]
 
     def __init__(self, argsdict):
@@ -40,6 +43,9 @@ class Game(object):
     skull = chr(0x1f480)
     hearts = [red_heart, yellow_heart, green_heart, skull]
     bang = chr(0x1f535)
+    immunity = chr(0x26d4)
+    resistance = chr(0x1f6d1)
+    vulnerability = chr(0x1f494)
 
     condition_emoji = {
         'blinded': chr(0x1f441),
@@ -52,7 +58,7 @@ class Game(object):
         'invisible': chr(0x1f440),
         'paralyzed': chr(0x26a1),
         'petrified': chr(0x1f48e),
-        'poisoned': chr(0x1f9ea),
+        'poisoned': chr(0x1f92e),
         'prone': chr(0x1f938),
         'restrained': chr(0x1f517),
         'stunned': chr(0x1f4ab),
@@ -61,15 +67,41 @@ class Game(object):
         'inspiration': chr(0x2b50),
     }
 
+    damage_types = {
+        'acid': chr(0x1f9ea),
+        'bludgeoning': chr(0x1f528),
+        'cold': chr(0x2744),
+        'fire': chr(0x1f525),
+        'force': chr(0x1f4a5),
+        'lightning': chr(0x1f329),
+        'necrotic': chr(0x2620),
+        'piercing': chr(0x1f3f9),
+        'poison': chr(0x1f922),
+        'psychic': chr(0x1f9e0),
+        'radiant': chr(0x1f31e),
+        'slashing': chr(0x1f5e1),
+        'thunder': chr(0x1f50a),
+        "bludgeoning, piercing, and slashing from nonmagical weapons that aren't silvered": chr(0x1f6e0),
+    }
+
     def __init__(self, **kwargs):
-        self.api = Api()
+        self.api = api.Api()
         self.pcs_yaml = kwargs.get('pcs_yaml')
 
         self.load_pcs()
 
     def add_character(self, name):
         hp = self.api.monster_hp(name)
-        character = Character({'name': name, 'hp': hp})
+        imms = self.api.monster_immunities(name)
+        res = self.api.monster_resistances(name)
+        vuln = self.api.monster_vulnerabilities(name)
+        character = Character({
+            'name': name,
+            'hp': hp,
+            'immunities': imms,
+            'resistances': res,
+            'vulnerabilities': vuln,
+        })
         while name in self.pcs.keys():
             last_digit_string = ''.join(filter(str.isdigit, name))
             if len(last_digit_string) > 0:
@@ -170,6 +202,9 @@ class Game(object):
             frac = float(tmp_hp) / float(hp)
             frac_text = f'{tmp_hp}/{hp}'
             conditions = getattr(ch, 'conditions', '')
+            immunities = getattr(ch, 'immunities', '')
+            resistances = getattr(ch, 'resistances', '')
+            vulnerabilities = getattr(ch, 'vulnerabilities', '')
 
             if frac < 1.0 and frac >= 0.5:
                 heart = Game.yellow_heart
@@ -181,6 +216,9 @@ class Game(object):
             ret_list.append(f'Name: {name}')
             ret_list.append(f'  {heart} : {frac_text}')
             ret_list.append(f'  {Game.bang}: {conditions}')
+            ret_list.append(f'  {Game.immunity}: {immunities}')
+            ret_list.append(f'  {Game.resistance}: {resistances}')
+            ret_list.append(f'  {Game.vulnerability}: {vulnerabilities}')
 
         self.pcs_status_list = ret_list
 
@@ -269,6 +307,7 @@ class Game(object):
             character['name'] = name
             character['hp'] = self.pcs[name].hp
             character['conditions'] = self.pcs[name].conditions
+            character['immunities'] = self.pcs[name].immunities
             entry['character'] = character
             new.append(entry)
 
