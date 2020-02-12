@@ -1,5 +1,6 @@
 import names
 import numpy
+import petname
 import random
 import re
 import string
@@ -121,6 +122,20 @@ def name_gen_phonemes(**kwargs):
     name = ''
     name_len = random.randint(3, max_len)
     return phonemes.generate_string(name_len).capitalize()
+
+
+def name_gen_petname(**kwargs):
+    words = kwargs.get('words', random.randint(1,4))
+    word_len = kwargs.get('word_len', random.randint(3, 10))
+
+    first_last = kwargs.get('first_last', 'first')
+
+    name = petname.generate(words, ' ', word_len)
+
+    if first_last == 'first':
+        return ' '.join(name.split(' ')[:-1])
+    else:
+        return name.split(' ')[-1]
 
 
 if __name__ == "__main__":
