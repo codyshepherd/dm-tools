@@ -18,9 +18,13 @@ INIT_LIST_UPPER_INDEX = 0
 STATUS_BOX = None
 STATUS_BOX_TITLE = "Status"
 STATUS_BOX_WIDTH = 0
-STATUS_LIST_LOWER_INDEX = 0
-STATUS_LIST_UPPER_INDEX = 0
 STATUS_CURSOR_MAX_UPPER = 0
+STATUS_ENTRY_LENGTH = 6
+MENU_BOX = None
+MENU_BOX_TITLE = "Menu"
+MENU_BOX_WIDTH = 0
+MENU_BOX_HEIGHT = 0
+MENU_TEXT = ''
 LOG_BOX = None
 LOG_BOX_TITLE = "Log"
 LOG_BOX_WIDTH = 0
@@ -48,19 +52,23 @@ CURSOR_INDEX = 0
 
 INIT_OPTION_TUPLES = {
     'a': (lambda: add_character(), 'Add Character'),
-    'c': (lambda: clear_init(), 'Clear Initiative'),
-    'd': (lambda: defer_initiative(), 'Defer Turn'),
+    'x': (lambda: clear_init(), 'Clear Initiative'),
+    't': (lambda: defer_initiative(), 'Defer Turn'),
     'n': (lambda: handle_next(), 'Next Character'),
     'r': (lambda: remove_character(), 'Remove Character'),
     's': (lambda: sort_init_list(), 'Sort List'),
+    '1-99': (lambda: set_initiative(), 'Set initiative'),
 }
 
 STATUS_OPTION_TUPLES = {
     'a': (lambda: add_character(), 'Add Character'),
     'c': (lambda: add_condition(), 'Condition Add'),
     'd': (lambda: delete_condition(), 'Delete Condition'),
-    'r': (lambda: remove_char_statusbox_wrapper(), 'Remove Character'),
+    'h': (lambda: set_hp(), 'Set HP'),
+    '-/+': (lambda: set_hp(), 'Edit temp HP'),
 }
+
+ALL_OPTIONS_TUPLES = {**INIT_OPTION_TUPLES, **STATUS_OPTION_TUPLES}
 
 HELP_TEXT = {
     'Add': 'Add Character: Enter name',
@@ -89,30 +97,36 @@ FINAL_KEYS = [ENTER_KEY, ESC_KEY]
 
 
 def add_character():
-    global STATUS_LIST_UPPER_INDEX
+    display_help_text('Enter the name of the combatant')
     name = get_input(helptext=HELP_TEXT['Add'])
     if len(name) < 1:
         return "no input"
 
     GAME_STATE.add_character(name)
-    for i in range(3):
-        if STATUS_LIST_UPPER_INDEX - STATUS_LIST_LOWER_INDEX <= STATUS_CURSOR_MAX_UPPER:
-            STATUS_LIST_UPPER_INDEX += 1
     INIT_BOX.clear()
     STATUS_BOX.clear()
     return f'Add {name}'
 
 
 def add_condition():
+    name = GAME_STATE.initiative_list[CURSOR_INDEX]
+    name = ' '.join(name.split()[1:])
     cond = get_input(helptext=HELP_TEXT['Conditions'])
     if len(cond) < 1:
-        return "no input"
-
-    name = edit_status(text=cond)
-    return f'added condition {cond} to {name}'
+        cond += "no input"
+        status = 'failure'
+    elif cond not in GAME_STATE.condition_emoji.keys():
+        cond += " unknown"
+        status = 'failure'
+    else:
+        status = GAME_STATE.set_condition(name, cond)
+    STATUS_BOX.clear()
+    return f'added condition {cond} to {name} {status}'
 
 
 def adjust_box_indices(box, lower_val, upper_val):
+    # TODO: add this functionality for init box
+    '''
     global STATUS_LIST_LOWER_INDEX
     global STATUS_LIST_UPPER_INDEX
     if box == INIT_BOX:
@@ -120,6 +134,8 @@ def adjust_box_indices(box, lower_val, upper_val):
     elif box == STATUS_BOX:
         STATUS_LIST_LOWER_INDEX = lower_val
         STATUS_LIST_UPPER_INDEX = upper_val
+    '''
+    pass
 
 
 def clear_help_text():
@@ -159,8 +175,23 @@ def defer_initiative():
 
 
 def delete_condition():
-    cond, name = edit_status(remove=True)
-    return f'remove condition {cond} from {name}'
+    name = GAME_STATE.initiative_list[CURSOR_INDEX]
+    name = ' '.join(name.split()[1:])
+    conds = GAME_STATE.pcs[name].conditions
+
+    if len(conds) < 1:
+        return f'No conditions to remove for {name}'
+
+    # move cursor to condiitons array
+    conds_string = conds.strip()[3:]
+    bang_len = 6
+    
+    cond_to_remove = nav_conditions(name, conds)
+    if cond_to_remove == '':
+        return f'Remove condition from {conds} for {name} canceled'
+    cond_name = GAME_STATE.remove_condition(name, cond_to_remove)
+    STATUS_BOX.clear()
+    return f'remove condition {cond_name} from {name}'
 
 
 def display_help_text(text):
@@ -172,102 +203,22 @@ def display_help_text(text):
     HELP_PANEL.refresh()
 
 
-def edit_status(text=None, remove=False):
-
-    choice = GAME_STATE.pcs_status_list[CURSOR_INDEX]
-    choice_list = choice.split()
-    choice_part = choice_list[0]
-
-    if choice_part == 'Name:':
-        # update name
-        return 'Name change not implemented yet'
-    elif choice_part in Game.hearts:
-        # get HP update
-        if text is None or len(text) < 1:
-            change = get_input()
-        else:
-            change = text
-        if not is_integer(change) and not is_float(change):
-            return 'non-integer input'
-
-        change_type = None
-        change_str = change
-        if change[0] == '-' or change[0] == '+':
-            change_type = change[0]
-            change = change[1:]
-        elif is_float(change):
-            change_type = 'set max'
-        name = get_status_owner()
-
-        GAME_STATE.update_hp(name, change, change_type, WRITE_CHANGES)
-
-        STATUS_BOX.clear()
-        return ' '.join([name, change_str])
-
-    elif Game.bang in choice_part and not remove:
-        # add condition
-        name = get_status_owner()
-        msg = GAME_STATE.set_condition(name, text)
-        STATUS_BOX.clear()
-        return msg
-    else:
-        # remove condition
-        name = get_status_owner()
-        if len(choice_list) > 1:
-            conds = choice_list[1]
-        else:
-            conds = ''
-
-        if len(conds) < 1:
-            return 'none', 'no-one'
-
-        # move cursor to condiitons array
-        conds_string = choice.strip()[3:]
-        bang_len = 6
-        cond_to_remove = nav_horizontal(conds_string, bang_len)
-        if cond_to_remove == '':
-            return 'canceled', 'nobody'
-        cond_name = GAME_STATE.remove_condition(name, cond_to_remove)
-        STATUS_BOX.clear()
-        return cond_name, name
-
-
 def execute_box_choice(text):
     if text is None or len(text) < 1:
         return 'no input to execute'
-    if CUR_BOX == INIT_BOX:
-        return execute_init_box_choice(text)
-    elif CUR_BOX == STATUS_BOX:
-        return execute_status_box_choice(text)
-
-
-def execute_init_box_choice(text):
-    if text is None or len(text) < 1:
-        return 'no input'
     elif text.isdigit():
         text = text.split()[0]
         name = GAME_STATE.initiative_list[CURSOR_INDEX]
         name = ' '.join(name.split()[1:])
         GAME_STATE.set_initiative(name, text)
         return f'Set initiative: {name} {text}'
-    elif text.lower() in INIT_OPTION_TUPLES.keys():
-        return INIT_OPTION_TUPLES[text.lower()][0]()
-
-
-def execute_status_box_choice(text):
-    global CUR_BOX_TEXT
-    if text is None or len(text) < 1:
-        return 'no input'
-    elif is_integer(text) or is_float(text):
-        return edit_status(text)
-    elif text.lower() in STATUS_OPTION_TUPLES.keys():
-        returntext = STATUS_OPTION_TUPLES[text.lower()][0]()
-        CUR_BOX_TEXT = GAME_STATE.pcs_status_list
-        return returntext
+    elif text[0] in ['-', '+']:
+        return set_hp(text)
+    elif text.lower() in ALL_OPTIONS_TUPLES.keys():
+        return ALL_OPTIONS_TUPLES[text.lower()][0]()
 
 
 def get_input(keys=None, helptext=''):
-    display_help_text('; '.join([HELP_TEXT['Cancel'], helptext]))
 
     INPUT_PANEL.move(1, 1)
     INPUT_PANEL.clear()
@@ -337,13 +288,48 @@ def max_len_append(new_item, the_list, max_len):
     return the_list
 
 
+def nav_conditions(name, conds):
+    global STATUS_BOX
+    buf = 0
+    index = 0
+    horiz_buffer = 6 # two spaces of indent plus length of '!: '
+    conditions_index_for_top_entry = 2
+    STATUS_BOX.move(BOX_BUFFER_SPACES + conditions_index_for_top_entry,
+                    BOX_PADDING + horiz_buffer)
+    key = STATUS_BOX.getkey()
+    string = conds
+    len_string = len(string)
+    while key not in FINAL_KEYS:
+        if key in RIGHT_LEFT_KEYS:
+            if key == 'KEY_RIGHT' and index < len_string-1:
+                if string[index] != ' ':
+                    buf += 2
+                else:
+                    buf += 1
+                index += 1
+            elif key == 'KEY_LEFT' and index > 0:
+                if string[index] != ' ':
+                    buf -= 1
+                else:
+                    buf -= 2
+                index -= 1
+        STATUS_BOX.move(BOX_BUFFER_SPACES + conditions_index_for_top_entry,
+                             BOX_PADDING+horiz_buffer+buf)
+        key = STATUS_BOX.getkey()
+    if key == ENTER_KEY:
+        if string[index] == ' ':
+            return string[index-1]
+        return string[index]
+    else:
+        return ''
+
+
 def nav_horizontal(string, horiz_buffer):
     # necessary to keep index and buf separate, because emojis are length
     # of 1, though ncurses displays them with length of 2
     index = 0
     buf = 0
     CUR_BOX.move(BOX_BUFFER_SPACES + CURSOR_INDEX, BOX_PADDING+horiz_buffer+buf)
-    display_help_text('; '.join([HELP_TEXT['Cancel'], 'Enter a condition']))
     key = CUR_BOX.getkey()
     len_string = len(string)
     while key not in FINAL_KEYS:
@@ -372,14 +358,9 @@ def nav_horizontal(string, horiz_buffer):
 
 def navkey_to_index(keystroke, menu_list, cursor_index, box):
     len_list = len(menu_list)
-    if box == INIT_BOX:
-        relevant_lower = INIT_LIST_LOWER_INDEX
-        relevant_upper = INIT_LIST_UPPER_INDEX
-        relevant_max = STATUS_CURSOR_MAX_UPPER
-    else:
-        relevant_lower = STATUS_LIST_LOWER_INDEX
-        relevant_upper = STATUS_LIST_UPPER_INDEX
-        relevant_max = STATUS_CURSOR_MAX_UPPER
+    relevant_lower = INIT_LIST_LOWER_INDEX
+    relevant_upper = INIT_LIST_UPPER_INDEX
+    relevant_max = STATUS_CURSOR_MAX_UPPER
 
     if keystroke == 'KEY_UP' and cursor_index <= 0:
         box.clear()
@@ -415,39 +396,16 @@ def navkey_to_index(keystroke, menu_list, cursor_index, box):
 
 def remove_character(name=None):
     global CURSOR_INDEX
-    global CUR_BOX_TEXT
-    global STATUS_LIST_UPPER_INDEX
-    global STATUS_LIST_LOWER_INDEX
     if name is None or name not in GAME_STATE.pc_names:
         init_and_name_list = GAME_STATE.initiative_list[CURSOR_INDEX].split()
         name = ' '.join(init_and_name_list[1:])
 
     GAME_STATE.remove_character(name)
-    if CUR_BOX == INIT_BOX:
-        CUR_BOX_TEXT = GAME_STATE.initiative_list
-    else:
-        CUR_BOX_TEXT = GAME_STATE.pcs_status_list
-    if CURSOR_INDEX >= len(CUR_BOX_TEXT):
-        CURSOR_INDEX = len(CUR_BOX_TEXT)-1
-    STATUS_LIST_UPPER_INDEX -= 3
-    if STATUS_LIST_LOWER_INDEX > 2:
-        STATUS_LIST_LOWER_INDEX -= 3
+    if CURSOR_INDEX >= len(GAME_STATE.initiative_list):
+        CURSOR_INDEX = len(GAME_STATE.initiative_list)-1
     INIT_BOX.clear()
     STATUS_BOX.clear()
     return f'remove: {name}'
-
-
-def remove_char_statusbox_wrapper():
-    choice = GAME_STATE.pcs_status_list[CURSOR_INDEX+STATUS_LIST_LOWER_INDEX]
-    choice_list = choice.split()
-    choice_part = choice_list[0]
-
-    if choice_part == 'Name:':
-        return remove_character(' '.join(choice_list[1:]))
-    elif choice_part in Game.hearts or choice_part == f'{Game.bang}:':
-        name = get_status_owner()
-
-        return remove_character(name)
 
 
 def render_box(box, height, width, title, strings):
@@ -488,6 +446,32 @@ def render_input_panel():
     INPUT_PANEL.box()
 
 
+def set_hp(text=None):
+    display_help_text("Enter a number to set max HP; prepend -/+ to adjust temp HP")
+    name = GAME_STATE.initiative_list[CURSOR_INDEX]
+    name = ' '.join(name.split()[1:])
+
+    if text is None or len(text) < 1:
+        change = get_input()
+    else:
+        change = text
+    if not is_integer(change) and not is_float(change):
+        return 'non-integer input'
+
+    change_type = None
+    change_str = change
+    if change[0] == '-' or change[0] == '+':
+        change_type = change[0]
+        change = change[1:]
+    else:
+        change_type = 'set max'
+
+    GAME_STATE.update_hp(name, change, change_type, WRITE_CHANGES)
+
+    STATUS_BOX.clear()
+    return ' '.join([name, change_str])
+
+
 def sort_init_list():
     GAME_STATE.sort_init_list()
     INIT_BOX.clear()
@@ -500,9 +484,11 @@ def main(pcs, write_changes):
     global INIT_BOX_WIDTH
     global STATUS_BOX
     global STATUS_BOX_WIDTH
-    global STATUS_LIST_LOWER_INDEX
-    global STATUS_LIST_UPPER_INDEX
     global STATUS_CURSOR_MAX_UPPER
+    global MENU_BOX
+    global MENU_BOX_WIDTH
+    global MENU_BOX_HEIGHT
+    global MENU_TEXT
     global LOG_BOX
     global LOG_BOX_WIDTH
     global GAME_STATE
@@ -530,30 +516,38 @@ def main(pcs, write_changes):
     HEIGHT -= BOX_PADDING
     WIDTH -= BOX_PADDING
     MAX_BUFFER_LEN = WIDTH
+    MENU_BOX_TEXT = sorted([' '.join([k, v[1]]) for k, v in
+                     ALL_OPTIONS_TUPLES.items()])
+    MENU_BOX_WIDTH = max([len(s) for s in MENU_BOX_TEXT]) + BOX_BUFFER_SPACES
     INIT_BOX_WIDTH = 40
     STATUS_BOX_WIDTH = 40
-    LOG_BOX_WIDTH = (WIDTH // 3) - BOX_PADDING
+    LOG_BOX_WIDTH = WIDTH - MENU_BOX_WIDTH - INIT_BOX_WIDTH - \
+                    STATUS_BOX_WIDTH - 3
 
     HELP_PANEL = curses.newwin(1, WIDTH, HEIGHT-2, 0)
+
+    MENU_BOX_HEIGHT = len(MENU_BOX_TEXT) + BOX_PADDING + BOX_HEIGHT_PADDING
+    MENU_BOX = curses.newwin(MENU_BOX_HEIGHT-BOX_PADDING, MENU_BOX_WIDTH, 0,
+                             0)
+    MENU_BOX.immedok(True)
+    MENU_BOX.keypad(True)
 
     INPUT_PANEL = curses.newwin(3, WIDTH, HEIGHT-1, 0)
     INPUT_PANEL.immedok(True)
     INPUT_PANEL.keypad(True)
 
-    INIT_BOX = curses.newwin(HEIGHT-BOX_PADDING, INIT_BOX_WIDTH, 0, 0)
+    INIT_BOX = curses.newwin(HEIGHT-BOX_PADDING, INIT_BOX_WIDTH, 0,
+                             MENU_BOX_WIDTH + 1)
     INIT_BOX.immedok(True)
     INIT_BOX.keypad(True)
 
     STATUS_BOX = curses.newwin(HEIGHT-BOX_PADDING, STATUS_BOX_WIDTH, 0,
-                               INIT_BOX_WIDTH + 2)
+                               MENU_BOX_WIDTH + INIT_BOX_WIDTH + 2)
     STATUS_BOX.immedok(True)
     STATUS_BOX.keypad(True)
     STATUS_BOX.scrollok(True)
     STATUS_BOX.idlok(True)
     STATUS_CURSOR_MAX_UPPER = HEIGHT - (BOX_HEIGHT_PADDING + BOX_BOTTOM_BUFFER)
-    STATUS_LIST_UPPER_INDEX = len(GAME_STATE.pcs_status_list) if \
-        len(GAME_STATE.pcs_status_list) <= STATUS_CURSOR_MAX_UPPER else \
-        STATUS_CURSOR_MAX_UPPER + 1
 
     CUR_BOX = INIT_BOX
     CUR_BOX_OPTIONS = INIT_OPTION_TUPLES
@@ -565,6 +559,7 @@ def main(pcs, write_changes):
     LOG_BOX = curses.newwin(HEIGHT-BOX_PADDING, LOG_BOX_WIDTH, 0,
                             INIT_BOX_WIDTH +
                             STATUS_BOX_WIDTH +
+                            MENU_BOX_WIDTH + 
                             3)
     LOG_BOX.immedok(True)
     LOG_BOX.keypad(True)
@@ -581,7 +576,8 @@ def main(pcs, write_changes):
             INIT_BOX_WIDTH = 40 if WIDTH > 120 else (WIDTH // 3) - BOX_PADDING
             STATUS_BOX_WIDTH = 40 if WIDTH > 120 else (WIDTH // 3) - \
                 BOX_PADDING
-            LOG_BOX_WIDTH = (WIDTH // 3) - BOX_PADDING
+            LOG_BOX_WIDTH = WIDTH - MENU_BOX_WIDTH - INIT_BOX_WIDTH - \
+                            STATUS_BOX_WIDTH - 15
 
             HELP_PANEL.resize(1, WIDTH)
             INPUT_PANEL.resize(3, WIDTH)
@@ -592,29 +588,32 @@ def main(pcs, write_changes):
             HELP_PANEL.resize(1, WIDTH)
             INPUT_PANEL.resize(3, WIDTH)
 
-            INIT_BOX.mvwin(0, 0)
-            STATUS_BOX.mvwin(0, INIT_BOX_WIDTH +
-                             2)
+            MENU_BOX.mvwin(0, 0)
+            INIT_BOX.mvwin(0, MENU_BOX_WIDTH + 2)
+            STATUS_BOX.mvwin(0, INIT_BOX_WIDTH + MENU_BOX_WIDTH + 4)
             LOG_BOX.mvwin(0, INIT_BOX_WIDTH +
                           STATUS_BOX_WIDTH +
-                          3)
+                          MENU_BOX_WIDTH + 
+                          5)
             HELP_PANEL.mvwin(HEIGHT-2, 0)
             INPUT_PANEL.mvwin(HEIGHT-1, 0)
             clear_refresh_all()
 
+        name = GAME_STATE.initiative_list[CURSOR_INDEX]
+        name = ' '.join(name.split()[1:])
+        GAME_STATE.promote_pc_in_status_list(name)
+        STATUS_BOX.clear()
+        render_box(MENU_BOX, MENU_BOX_HEIGHT, MENU_BOX_WIDTH, MENU_BOX_TITLE,
+                   MENU_BOX_TEXT)
         render_box(INIT_BOX, HEIGHT, INIT_BOX_WIDTH, INIT_BOX_TITLE,
                    GAME_STATE.initiative_list)
         render_box(STATUS_BOX, HEIGHT, STATUS_BOX_WIDTH, STATUS_BOX_TITLE,
-                   GAME_STATE.pcs_status_list[STATUS_LIST_LOWER_INDEX: STATUS_LIST_UPPER_INDEX])
+                   GAME_STATE.pcs_status_list[:STATUS_CURSOR_MAX_UPPER+1])
         render_box(LOG_BOX, HEIGHT, LOG_BOX_WIDTH, LOG_BOX_TITLE,
                    keystrokes_list)
         render_input_panel()
 
         CUR_BOX.move(BOX_BUFFER_SPACES + CURSOR_INDEX, BOX_PADDING)
-        display_help_text('; '.join([
-                                    HELP_TEXT['Quit'],
-                                    HELP_TEXT[CUR_BOX_TITLE],
-                                    ]))
         key = CUR_BOX.getkey()
 
         if key in UP_DOWN_KEYS:
@@ -622,23 +621,8 @@ def main(pcs, write_changes):
         elif key.lower() == 'q':
             sys.exit(0)
         elif key in RIGHT_LEFT_KEYS:
-            if key == "KEY_LEFT":
-                if CUR_BOX == STATUS_BOX:
-                    CUR_BOX = INIT_BOX
-                    CUR_BOX_OPTIONS = INIT_OPTION_TUPLES
-                    CUR_BOX_TEXT = GAME_STATE.initiative_list
-                    CUR_BOX_TITLE = INIT_BOX_TITLE
-                    if CURSOR_INDEX >= len(CUR_BOX_TEXT):
-                        CURSOR_INDEX = len(CUR_BOX_TEXT)-1
-            else:
-                if CUR_BOX == INIT_BOX:
-                    CUR_BOX = STATUS_BOX
-                    CUR_BOX_OPTIONS = STATUS_OPTION_TUPLES
-                    CUR_BOX_TEXT = GAME_STATE.pcs_status_list
-                    CUR_BOX_TITLE = STATUS_BOX_TITLE
-                    if CURSOR_INDEX >= len(CUR_BOX_TEXT):
-                        CURSOR_INDEX = len(CUR_BOX_TEXT)-1
-        elif key in CUR_BOX_OPTIONS.keys():
+            continue
+        elif key in ALL_OPTIONS_TUPLES.keys():
             printout = execute_box_choice(key)
             keystrokes_list = max_len_append(printout, keystrokes_list,
                                              key_list_max_len)

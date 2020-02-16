@@ -82,6 +82,7 @@ class Game(object):
         'slashing': chr(0x1f5e1),
         'thunder': chr(0x1f50a),
         "bludgeoning, piercing, and slashing from nonmagical weapons that aren't silvered": chr(0x1f6e0),
+        "bludgeoning, piercing, and slashing from nonmagical weapons": chr(0x1f6e0),
     }
 
     def __init__(self, **kwargs):
@@ -101,6 +102,7 @@ class Game(object):
             'immunities': imms,
             'resistances': res,
             'vulnerabilities': vuln,
+            'conditions': '',
         })
         while name in self.pcs.keys():
             last_digit_string = ''.join(filter(str.isdigit, name))
@@ -113,7 +115,6 @@ class Game(object):
         
         character.edit_name(name)
         self.pcs[name] = character
-        self.conditions[name] = ''
 
         self.pc_names.append(name)
         self.initiative_list.append(f'0 {name}')
@@ -153,7 +154,6 @@ class Game(object):
         self.initiative_list = new_list
 
     def load_pcs(self):
-        self.conditions = {}
         self.initiative = {}
         self.pc_names = []
         self.pcs = {}
@@ -170,7 +170,7 @@ class Game(object):
             self.pc_names.append(char_name)
             self.pcs[char_name] = Character(char)
             conds = char.get('conditions', '')
-            self.conditions[char_name] = conds
+            self.pcs[char_name].conditions = conds
 
         self.make_initiative_list()
         self.make_pcs_status_list()
@@ -227,6 +227,20 @@ class Game(object):
         rest = self.initiative_list[1:]
         self.initiative_list = rest + [first]
 
+    def promote_pc_in_status_list(self, name):
+        chars_items = []
+        remaining_items = []
+        found = False
+        for line in self.pcs_status_list:
+            if name in line or (found and 'Name' not in line) :
+                found = True
+                chars_items.append(line)
+            else:
+                found = False
+                remaining_items.append(line)
+
+        self.pcs_status_list = chars_items + remaining_items
+
     def remove_character(self, name):
         if self.pcs.get(name, None) is not None:
             del self.pcs[name]
@@ -240,26 +254,28 @@ class Game(object):
         for k, v in Game.condition_emoji.items():
             if v == cond:
                 conditions = self.pcs[name].conditions
-                conditions = ' '.join([c for c in conditions if (c != ' ' and c != cond)])
+                conditions = ' '.join([c for c in conditions if (c != ' ' and c != cond)]).strip()
                 self.pcs[name].conditions = conditions
                 self.make_pcs_status_list()
+                self.promote_pc_in_status_list(name)
                 self.write_state()
                 return k
         return f'{cond} not found'
 
-    def set_condition(self, name_expr, cond):
+    def set_condition(self, name, cond):
         cond = cond.lower()
         if cond not in Game.condition_emoji:
             return 'condition not found'
-        for name in self.pc_names:
-            if re.match(name_expr, name):
-                conds = self.pcs[name].conditions
-                emoji = Game.condition_emoji[cond]
-                if emoji not in conds:
-                    self.pcs[name].conditions = (conds + ' ' + emoji).strip()
-                    self.make_pcs_status_list()
-                    self.write_state()
-                return name
+        if name not in self.pcs.keys():
+            return f'{name} not found'
+        emoji = Game.condition_emoji[cond]
+        conds = self.pcs[name].conditions
+        if emoji not in conds:
+            self.pcs[name].conditions = (conds + ' ' + emoji).strip()
+            self.make_pcs_status_list()
+            self.promote_pc_in_status_list(name)
+            self.write_state()
+        return 'success'
 
     def set_initiative(self, name_expr, value):
         for name in self.pc_names:
@@ -295,6 +311,7 @@ class Game(object):
             return
 
         self.make_pcs_status_list()
+        self.promote_pc_in_status_list(name)
 
         if write_changes:
             self.write_state()

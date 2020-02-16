@@ -42,7 +42,9 @@ class Api(object):
 
     @convert_name
     def monster_resistances(self, name: str) -> str:
-        monster = self.monster_cache[name]
+        monster = self.monster_cache.get(name, None)
+        if monster is None:
+            return ''
         res = monster.get('damage_resistances', [])
 
         res_list = ''
@@ -53,7 +55,9 @@ class Api(object):
 
     @convert_name
     def monster_vulnerabilities(self, name: str) -> str:
-        monster = self.monster_cache[name]
+        monster = self.monster_cache.get(name, None)
+        if monster is None:
+            return ''
         vuln = monster.get('damage_vulnerabilities', [])
 
         vuln_list = ''
@@ -64,9 +68,9 @@ class Api(object):
    
     @convert_name
     def monster_immunities(self, name: str) -> str:
-        # we don't expect to have this function called without first calling
-        # get_monster so exception is fine here
-        monster = self.monster_cache[name]
+        monster = self.monster_cache.get(name, None)
+        if monster is None:
+            return ''
         dmg_imm = monster.get('damage_immunities', [])
         cond_imm = monster.get('condition_immunities', [])
 
