@@ -25,4 +25,4 @@ items: 'items.txt'
 max_items: 5
 professions: 'professions.txt'
 category: 'category.txt'
-content_dir: 'plebs/content'
+content_dir: 'content/'

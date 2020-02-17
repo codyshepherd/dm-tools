@@ -4,9 +4,10 @@ import click
 import curses
 import curses.ascii
 import os
+import pathlib
 import sys
 
-from game.game import Game
+from live_game.game.game import Game
 
 STDSCR = None
 
@@ -39,10 +40,10 @@ GAME_STATE = None
 HEIGHT = 0
 MAX_BUFFER_LEN = 128
 WIDTH = 0
-BASE_DIR = os.path.expanduser('.dm-tools')
+BASE_DIR = os.path.expanduser('dm-tools/live_game/')
 PCS_FILENAME = 'pcs.yaml'
 WRITE_CHANGES = True
-YAML_DIR = 'yamls'
+YAML_DIR = 'yamls/'
 
 CUR_BOX = None
 CUR_BOX_OPTIONS = None
@@ -324,38 +325,6 @@ def nav_conditions(name, conds):
         return ''
 
 
-def nav_horizontal(string, horiz_buffer):
-    # necessary to keep index and buf separate, because emojis are length
-    # of 1, though ncurses displays them with length of 2
-    index = 0
-    buf = 0
-    CUR_BOX.move(BOX_BUFFER_SPACES + CURSOR_INDEX, BOX_PADDING+horiz_buffer+buf)
-    key = CUR_BOX.getkey()
-    len_string = len(string)
-    while key not in FINAL_KEYS:
-        if key in RIGHT_LEFT_KEYS:
-            if key == 'KEY_RIGHT' and index < len_string-1:
-                if string[index] != ' ':
-                    buf += 2
-                else:
-                    buf += 1
-                index += 1
-            elif key == 'KEY_LEFT' and index > 0:
-                if string[index] != ' ':
-                    buf -= 1
-                else:
-                    buf -= 2
-                index -= 1
-        CUR_BOX.move(BOX_BUFFER_SPACES + CURSOR_INDEX, BOX_PADDING+horiz_buffer+buf)
-        key = CUR_BOX.getkey()
-    if key == ENTER_KEY:
-        if string[index] == ' ':
-            return string[index-1]
-        return string[index]
-    else:
-        return ''
-
-
 def navkey_to_index(keystroke, menu_list, cursor_index, box):
     len_list = len(menu_list)
     relevant_lower = INIT_LIST_LOWER_INDEX
@@ -395,6 +364,9 @@ def navkey_to_index(keystroke, menu_list, cursor_index, box):
 
 
 def remove_character(name=None):
+    if len(GAME_STATE.initiative_list) < 1:
+        return f'no combatants to remove'
+
     global CURSOR_INDEX
     if name is None or name not in GAME_STATE.pc_names:
         init_and_name_list = GAME_STATE.initiative_list[CURSOR_INDEX].split()
@@ -599,9 +571,11 @@ def main(pcs, write_changes):
             INPUT_PANEL.mvwin(HEIGHT-1, 0)
             clear_refresh_all()
 
-        name = GAME_STATE.initiative_list[CURSOR_INDEX]
-        name = ' '.join(name.split()[1:])
-        GAME_STATE.promote_pc_in_status_list(name)
+        if len(GAME_STATE.initiative_list) > 0:
+            name = GAME_STATE.initiative_list[CURSOR_INDEX]
+            name = ' '.join(name.split()[1:])
+            GAME_STATE.promote_pc_in_status_list(name)
+
         STATUS_BOX.clear()
         render_box(MENU_BOX, MENU_BOX_HEIGHT, MENU_BOX_WIDTH, MENU_BOX_TITLE,
                    MENU_BOX_TEXT)
@@ -617,7 +591,8 @@ def main(pcs, write_changes):
         key = CUR_BOX.getkey()
 
         if key in UP_DOWN_KEYS:
-            CURSOR_INDEX = navkey_to_index(key, CUR_BOX_TEXT, CURSOR_INDEX, CUR_BOX)
+            CURSOR_INDEX = navkey_to_index(key, GAME_STATE.initiative_list,
+                                           CURSOR_INDEX, INIT_BOX)
         elif key.lower() == 'q':
             sys.exit(0)
         elif key in RIGHT_LEFT_KEYS:
@@ -636,25 +611,25 @@ def main(pcs, write_changes):
 
 @click.command()
 @click.option('--pcs', '-p', type=click.Path(dir_okay=False,
-              writable=True, readable=True), default='{}/{}/{}'.format(
-                  BASE_DIR, YAML_DIR, PCS_FILENAME),
+              writable=True, readable=True), default=f'{BASE_DIR}{YAML_DIR}{PCS_FILENAME}',
               help='name of alternate PCs file')
 @click.option('--session-dir', '-d', type=click.Path(dir_okay=True,
               file_okay=False, writable=True, readable=True),
-              default='{}/{}'.format(BASE_DIR, YAML_DIR),
+              default=f'{BASE_DIR}{YAML_DIR}',
               help='path to alternate directory for writing session files')
 @click.option('--write-changes/--no-write-changes',
               help="Write HP and status changes to original yaml",
               default=True)
 def start(pcs, session_dir, write_changes):
     global STDSCR
+    global YAML_DIR
 
     if not os.path.exists(BASE_DIR):
-        os.mkdir(BASE_DIR)
+        pathlib.Path(BASE_DIR).mkdir(parents=True, exist_ok=True)
     if not os.path.exists(session_dir):
-        os.mkdir(session_dir)
+        pathlib.Path(session_dir).mkdir(parents=True, exist_ok=True)
         YAML_DIR = session_dir
-        with open('{}/{}'.format(session_dir, PCS_FILENAME), 'w+') as fh:
+        with open(f'{session_dir}{PCS_FILENAME}', 'w+') as fh:
             fh.write('')
     if not os.path.exists(pcs):
         print("The file provided to --pcs must exist")

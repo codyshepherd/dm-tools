@@ -1,7 +1,5 @@
 import requests
 
-import live_game.game as game
-
 def convert_name(func):
     def convert(*args):
         name = args[1]
@@ -42,6 +40,7 @@ class Api(object):
 
     @convert_name
     def monster_resistances(self, name: str) -> str:
+        import live_game.game.game as game
         monster = self.monster_cache.get(name, None)
         if monster is None:
             return ''
@@ -55,6 +54,7 @@ class Api(object):
 
     @convert_name
     def monster_vulnerabilities(self, name: str) -> str:
+        import live_game.game.game as game
         monster = self.monster_cache.get(name, None)
         if monster is None:
             return ''
@@ -68,6 +68,7 @@ class Api(object):
    
     @convert_name
     def monster_immunities(self, name: str) -> str:
+        import live_game.game.game as game
         monster = self.monster_cache.get(name, None)
         if monster is None:
             return ''

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import click
 import numpy
+import os
 import pprint
 import random
 import yaml
@@ -9,6 +10,9 @@ from plebs.plebs import gen_items
 from functools import reduce
 from itertools import chain
 from plebs.name_gen import name_gen
+
+OUT_DIR = os.path.expanduser('dm-tools/plebs/')
+
 
 @click.command()
 @click.option('-n', '--number', type=int,
@@ -22,7 +26,7 @@ def pockets(number, yaml_dump):
     string = '\n'.join(items)
     print(string)
     if yaml_dump:
-        with open('plebs/pockets.txt', 'w+') as fh:
+        with open(f'{OUT_DIR}pockets.txt', 'w+') as fh:
             fh.write(string)
 
 
