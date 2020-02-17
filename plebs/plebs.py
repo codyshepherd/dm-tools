@@ -5,8 +5,8 @@ import pprint
 import random
 import yaml
 
-from name_gen import name_gen
-from dice import roll
+from plebs.name_gen import name_gen
+from plebs.dice import roll
 from functools import reduce
 from itertools import chain
 
@@ -45,7 +45,7 @@ def gen_hp(**kwargs):
 
 
 def gen_items(**kwargs):
-    content_dir = kwargs.get('content_dir', 'content')
+    content_dir = kwargs.get('content_dir', 'plebs/content')
     items_file = kwargs.get('items', 'items.txt')
     path = '/'.join([content_dir, items_file])
     num_items = kwargs.get('num_items', None)
@@ -104,7 +104,7 @@ def return_race(**kwargs):
 
 
 def gen_profession(**kwargs):
-    content_dir = kwargs.get('content_dir', 'content')
+    content_dir = kwargs.get('content_dir', 'plebs/content')
     professions_file = kwargs.get('professions', 'professions.txt')
     path = '/'.join([content_dir, professions_file])
     with open(path, 'r') as fh:
@@ -164,13 +164,11 @@ FUNCTIONS = {
 
 
 @click.command()
-# @click.argument('target', type=click.Path(exists=True))
-# @click.argument('source-yaml', type=click.Path(exists=True))
 @click.option('-n', '--number', type=int,
               help="The number of plebs to create", default=1)
 @click.option('-c', '--config-yaml', type=click.Path(exists=True),
               help="The path to a yaml config file",
-              default='default-config.yaml')
+              default='plebs/default-config.yaml')
 @click.option('-y', '--yaml-dump', is_flag=True,
               help="Dump to yaml")
 @click.option('-g', '--name-generator',
@@ -206,7 +204,7 @@ def plebs(number, config_yaml, yaml_dump, name_generator):
     string = stringify(ps)
     print(string)
     if yaml_dump:
-        with open('plebs.txt', 'w+') as fh:
+        with open('plebs/plebs.txt', 'w+') as fh:
             fh.write(string)
 
 

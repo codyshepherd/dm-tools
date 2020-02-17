@@ -1,6 +1,6 @@
 import requests
 
-import game.game as game
+import live_game.game as game
 
 def convert_name(func):
     def convert(*args):

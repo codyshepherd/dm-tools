@@ -24,4 +24,5 @@ hit_die: [4,4] # the hit dice of your NPCs, in this case 4d4
 items: 'items.txt'
 max_items: 5
 professions: 'professions.txt'
-content_dir: 'content'
+category: 'category.txt'
+content_dir: 'plebs/content'

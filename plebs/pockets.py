@@ -5,11 +5,10 @@ import pprint
 import random
 import yaml
 
-from plebs import gen_items
-from dice import roll
+from plebs.plebs import gen_items
 from functools import reduce
 from itertools import chain
-from name_gen import name_gen
+from plebs.name_gen import name_gen
 
 @click.command()
 @click.option('-n', '--number', type=int,
@@ -23,7 +22,7 @@ def pockets(number, yaml_dump):
     string = '\n'.join(items)
     print(string)
     if yaml_dump:
-        with open('pockets.txt', 'w+') as fh:
+        with open('plebs/pockets.txt', 'w+') as fh:
             fh.write(string)
 
 
