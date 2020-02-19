@@ -4,22 +4,37 @@ Requires python >= 3.6 and a Bash shell
 
 ## Setup Instructions
 
+### Method 1: Install Snap
+
+```
+sudo snap install --devmode --channel=edge dm-tools
+```
+
+Note that `--devmode --channel=edge` switches will not be necessary once the
+snap is released to the stable channel.
+
+Invoke with `dm-tools.live-game`, `dm-tools.plebs`, or `dm-tools.pockets`
+
+### Method 2: Use Pip/Setuptools
+
 * Create and activate a virtualenv that uses python >= 3.6
   * I like to use virtualenvwrapper
-  * `mkvirtualenv -p $(which python3.7) venv`
+  * `mkvirtualenv -p $(which python3) venv`
   * `setvirtualenvproject`
-* Install requirements: `pip install -r requirements.txt`
+* Install requirements: `pip install .`
 * The easiest way to use each tool is to cd into its directory before calling
 
-### Suite Goals
+Invoke with `live-game`, `plebs`, or `pockets`
 
-- [ ] Top-level api (e.g. `dm-tools live-game`)
-- [ ] Package as snap
+## Known Issues
+
+If your terminal window is not big enough, when you try to start `live-game`,
+you will get a crash with an error that says 'curses returned NULL'. Just
+increase the size of your terminal window, or decrease the size of the text,
+to alleviate this.
 
 ## live-game
-A tool for tracking of a play session.
-
-Run with `./live-game.py` at the command line.
+A tool for tracking of a combat encounter.
 
 ### Live-Game Features
 
@@ -29,39 +44,32 @@ Run with `./live-game.py` at the command line.
 * Defer initiative until end of turn
 * Add/remove characters to/from list on the fly
 * Display and edit current and max HP for all combatants
-  * HP is automatically populated from the web for D&D 5e SRD monsters
 * Display and edit combatant conditions
   * D&D 5e conditions, plus Inspiration, are supported
   * currently this requires typing in the full name of the condition; a better
-    interface would be nice
+    interface is forthcoming
+* Automatically populates HP, Immunities, Resistances, and Vulnerabilities for
+  D&D 5e SRD monsters
 
 Also features a log of past commands.
 
 ### Future Goals
-- [x] interactive runtime to track session
-- [ ] collapsible column entries
-- [x] scrollable column text
 - [ ] live update characters' status
-  - [x] Max and current HP
+  - [ ] Add a legend for category symbols
   - [ ] Display names and creature type together
-  - [x] add and remove Conditions
-  - [ ] Some type of menu for adding conditions
-  - [ ] Clear all conditions
+  - [ ] Add arbitrary emojis for conditions
+  - [ ] Adjust HP for all combatants with a given name regex
   - [ ] Inventories
-- [x] set initiative / sort characters by initiative
 - [ ] roll dice
   - [ ] with modifiers
 - [ ] generate random encounter by CR 
 
 ## plebs (and pockets)
-Call `./plebs.py` to generate an arbitary number of NPCs from arbitrary races.
+Generate an arbitary number of NPCs from arbitrary races.
 The generator can be configured by passing an alternate config.yaml, with
 `default-config.yaml` as an example.
 
-This tool is best used by cd-ing into the `plebs/` directory and then calling
-`./plebs.py` with options.
-
-See available options with `./plebs --help`.
+See available options with `plebs --help`.
 
 Currently produces the following stats for a given NPC:
 - age
@@ -76,9 +84,6 @@ Currently produces the following stats for a given NPC:
 ### Goals
 - [ ] Adjustments of stats and hp for races
 - [ ] Allow modifiers
-- [x] Better names
-- [x] Occupations
-- [x] Items carried
 - [ ] Attack & defense capabilities
 
 ### pockets
