@@ -1,0 +1,17 @@
+name: Build Snap Package
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: jhenstridge/snapcraft-build-action@v1
+        id: snapcraft
+      - run: |
+          sudo snap install --devmode --dangerous ${{ steps.snapcraft.outputs.snap }}
+          dm-tools.plebs
+          dm-tools.pockets
