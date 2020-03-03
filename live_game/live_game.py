@@ -169,6 +169,8 @@ def clear_refresh_all():
 
 
 def defer_initiative():
+    if len(GAME_STATE.initiative_list) < 1:
+        return 'no combatants present'
     init_and_name_list = GAME_STATE.initiative_list[0].split()
     name = ' '.join(init_and_name_list[1:])
     GAME_STATE.defer_initiative()
@@ -212,6 +214,8 @@ def execute_box_choice(text):
         return 'no input to execute'
     elif text.isdigit():
         text = text.split()[0]
+        if len(GAME_STATE.initiative_list) < 1:
+            return 'no combatants present'
         name = GAME_STATE.initiative_list[CURSOR_INDEX]
         name = ' '.join(name.split()[1:])
         GAME_STATE.set_initiative(name, text)
@@ -219,6 +223,8 @@ def execute_box_choice(text):
     elif text[0] in ['-', '+']:
         return set_hp(text)
     elif text.lower() in ALL_OPTIONS_TUPLES.keys():
+        if len(GAME_STATE.initiative_list) < 1 and text.lower() != 'a':
+            return 'no combatants present'
         return ALL_OPTIONS_TUPLES[text.lower()][0]()
 
 
@@ -423,6 +429,8 @@ def render_input_panel():
 
 def set_hp(text=None):
     display_help_text('; '.join([HELP_TEXT['Hp'], HELP_TEXT['Cancel']]))
+    if len(GAME_STATE.initiative_list) < 1:
+        return 'no combatants present'
     name = GAME_STATE.initiative_list[CURSOR_INDEX]
     name = ' '.join(name.split()[1:])
 
