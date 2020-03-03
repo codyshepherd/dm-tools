@@ -17,5 +17,10 @@ jobs:
           ls /
           ls /snap/
           ls /snap/dm-tools/
+          ls /snap/dm-tools/x1/
+          ls /snap/dm-tools/x1/lib/
+          ls /snap/dm-tools/x1/lib/python3.6/
+          ls /snap/dm-tools/x1/lib/python3.6/site-packages/
+          ls /snap/dm-tools/x1/lib/python3.6/site-packages/plebs/
           dm-tools.plebs
           dm-tools.pockets
