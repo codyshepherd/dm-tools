@@ -13,7 +13,9 @@ jobs:
         id: snapcraft
       - name: install and test-run
         run: |
-          sudo snap install --devmode --dangerous ${{ steps.snapcraft.outputs.snap }}
+          sudo snap install --dangerous ${{ steps.snapcraft.outputs.snap }}
+          ls /
+          ls /snap/
+          ls /snap/dm-tools/
           dm-tools.plebs
           dm-tools.pockets
-        shell: bash
