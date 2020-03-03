@@ -296,7 +296,22 @@ class Game(object):
         if update_type == 'set max':
             change = change.split('.')[0]
 
-        change_int = int(change)
+        int_cast = False
+        try:
+            change_int = int(change)
+            int_cast = True
+        except ValueError:
+            int_cast = False
+
+        if not int_cast:
+            try:
+                change_int = int(float(change))
+                int_cast = True
+            except ValueError:
+                int_cast = False
+
+        if not int_cast:
+            return
 
         if update_type is None:
             self.pcs[name].tmp_hp = change
