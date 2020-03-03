@@ -25,4 +25,3 @@ items: 'items.txt'
 max_items: 5
 professions: 'professions.txt'
 category: 'category.txt'
-content_dir: 'content/'

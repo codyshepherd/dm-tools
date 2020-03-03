@@ -23,7 +23,10 @@ class Api(object):
             return True
 
         url = self.base_url + 'monsters/' + name + '/'
-        response = requests.get(url)
+        try:
+            response = requests.get(url)
+        except requests.exceptions.ConnectionError:
+            return False
         if response.status_code != 200:
             return False
 

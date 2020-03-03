@@ -11,7 +11,7 @@ from functools import reduce
 from itertools import chain
 from plebs.name_gen import name_gen
 
-OUT_DIR = os.path.expanduser('dm-tools/plebs/')
+OUT_DIR = os.path.dirname(__file__)
 
 
 @click.command()
@@ -26,9 +26,7 @@ def pockets(number, yaml_dump):
     string = '\n'.join(items)
     print(string)
     if yaml_dump:
-        with open(f'{OUT_DIR}pockets.txt', 'w+') as fh:
-            fh.write(string)
-
+        pass
 
 if __name__ == '__main__':
     pockets()

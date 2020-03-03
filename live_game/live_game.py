@@ -72,10 +72,12 @@ STATUS_OPTION_TUPLES = {
 ALL_OPTIONS_TUPLES = {**INIT_OPTION_TUPLES, **STATUS_OPTION_TUPLES}
 
 HELP_TEXT = {
-    'Add': 'Add Character: Enter name',
+    'Add': 'Enter name of combatant',
     'Cancel': 'Hit `\u0331 (backtick) to Cancel',
     'Conditions': 'Enter a condition',
+    'Hp': 'Enter a number to set max HP; prepend -/+ to adjust temp HP',
     'Quit': 'Hit q\u0331 to Quit',
+    'Remove': 'Select condition icon to remove',
     INIT_BOX_TITLE: '  '.join([k+'\u0331: {}'.format(v[1]) for k,v in
                                INIT_OPTION_TUPLES.items()]),
     STATUS_BOX_TITLE: '  '.join([k+'\u0331: {}'.format(v[1]) for k,v in
@@ -98,7 +100,7 @@ FINAL_KEYS = [ENTER_KEY, ESC_KEY]
 
 
 def add_character():
-    display_help_text('Enter the name of the combatant')
+    display_help_text('; '.join([HELP_TEXT['Add'], HELP_TEXT['Cancel']]))
     name = get_input(helptext=HELP_TEXT['Add'])
     if len(name) < 1:
         return "no input"
@@ -176,6 +178,7 @@ def defer_initiative():
 
 
 def delete_condition():
+    display_help_text('; '.join([HELP_TEXT['Remove'], HELP_TEXT['Cancel']]))
     name = GAME_STATE.initiative_list[CURSOR_INDEX]
     name = ' '.join(name.split()[1:])
     conds = GAME_STATE.pcs[name].conditions
@@ -419,7 +422,7 @@ def render_input_panel():
 
 
 def set_hp(text=None):
-    display_help_text("Enter a number to set max HP; prepend -/+ to adjust temp HP")
+    display_help_text('; '.join([HELP_TEXT['Hp'], HELP_TEXT['Cancel']]))
     name = GAME_STATE.initiative_list[CURSOR_INDEX]
     name = ' '.join(name.split()[1:])
 
@@ -586,6 +589,7 @@ def main(pcs, write_changes):
         render_box(LOG_BOX, HEIGHT, LOG_BOX_WIDTH, LOG_BOX_TITLE,
                    keystrokes_list)
         render_input_panel()
+        display_help_text(HELP_TEXT['Quit'])
 
         CUR_BOX.move(BOX_BUFFER_SPACES + CURSOR_INDEX, BOX_PADDING)
         key = CUR_BOX.getkey()
