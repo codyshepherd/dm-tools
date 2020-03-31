@@ -3,7 +3,6 @@ import click
 import numpy
 import os
 import pathlib
-import pprint
 import random
 import yaml
 
@@ -14,6 +13,7 @@ from itertools import chain
 
 
 OUT_DIR = os.path.dirname(__file__)
+CONTENT_DIR = os.path.join(OUT_DIR, 'content/')
 LOCAL_DIR = 'plebs/'
 STATS = [
     "str",
@@ -50,7 +50,7 @@ def gen_hp(**kwargs):
 
 def gen_items(**kwargs):
     items_file = kwargs.get('items', 'items.txt')
-    path = os.path.join(OUT_DIR, items_file)
+    path = os.path.join(CONTENT_DIR, items_file)
     num_items = kwargs.get('num_items', None)
 
     max_items = int(kwargs.get('max_items', 5))
@@ -106,7 +106,7 @@ def return_race(**kwargs):
 def gen_profession(**kwargs):
 
     professions_file = kwargs.get('professions', 'professions.txt')
-    path = os.path.join(OUT_DIR, professions_file)
+    path = os.path.join(CONTENT_DIR, professions_file)
     with open(path, 'r') as fh:
         profs = fh.read()
     profs = profs.split('\n')
