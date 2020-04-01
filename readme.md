@@ -11,16 +11,14 @@ Requires python >= 3.6 and a Bash shell
 [![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-black.svg)](https://snapcraft.io/dm-tools)
 
 ```
-sudo snap install --devmode --channel=edge dm-tools
+sudo snap install dm-tools
 ```
-
-Note that `--devmode --channel=edge` switches will not be necessary once the
-snap is released to the stable channel.
 
 Invoke with `dm-tools.live-game`, `dm-tools.plebs`, or `dm-tools.pockets`
 
 ### Method 2: Use Pip/Setuptools
 
+* Clone this repository
 * Create and activate a virtualenv that uses python >= 3.6
   * I like to use virtualenvwrapper
   * `mkvirtualenv -p $(which python3) venv`
