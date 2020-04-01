@@ -112,7 +112,7 @@ class Game(object):
                 name = name + str(last_digit + 1)
             else:
                 name = name + '1'
-        
+
         character.edit_name(name)
         self.pcs[name] = character
 
@@ -190,7 +190,6 @@ class Game(object):
             sorted_pc_names]
 
     def make_pcs_status_list(self):
-        # type: () -> List[Text]
         ret_list = []
 
         for name in self.pc_names:
@@ -232,7 +231,8 @@ class Game(object):
         remaining_items = []
         found = False
         for line in self.pcs_status_list:
-            if name in line or (found and 'Name' not in line) :
+            if re.search(rf'\b{name}\b', line) or \
+               (found and 'Name' not in line):
                 found = True
                 chars_items.append(line)
             else:

@@ -112,6 +112,7 @@ def add_character():
 
 
 def add_condition():
+    display_help_text('; '.join([HELP_TEXT['Conditions'], HELP_TEXT['Cancel']]))
     name = GAME_STATE.initiative_list[CURSOR_INDEX]
     name = ' '.join(name.split()[1:])
     cond = get_input(helptext=HELP_TEXT['Conditions'])

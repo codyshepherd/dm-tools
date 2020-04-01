@@ -2,9 +2,13 @@
 
 Requires python >= 3.6 and a Bash shell
 
+[![dm-tools](https://snapcraft.io//dm-tools/badge.svg)](https://snapcraft.io/dm-tools)
+
 ## Setup Instructions
 
 ### Method 1: Install Snap
+
+[![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-black.svg)](https://snapcraft.io/dm-tools)
 
 ```
 sudo snap install --devmode --channel=edge dm-tools

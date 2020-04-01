@@ -1,5 +1,6 @@
 import requests
 
+
 def convert_name(func):
     def convert(*args):
         name = args[1]
@@ -12,12 +13,14 @@ def convert_name(func):
         return func(*new_args, **kwargs)
     return wrapper
 
+
 class Api(object):
     base_url = 'http://dnd5eapi.co/api/'
 
     def __init__(self):
         self.monster_cache = {}
 
+    @convert_name
     def get_monster(self, name: str) -> bool:
         if name in self.monster_cache:
             return True
@@ -68,7 +71,7 @@ class Api(object):
             vuln_list += game.Game.damage_types[v]
 
         return vuln_list
-   
+
     @convert_name
     def monster_immunities(self, name: str) -> str:
         import live_game.game.game as game
