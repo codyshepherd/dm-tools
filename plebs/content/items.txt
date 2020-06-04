@@ -27,8 +27,8 @@ Beaver-Skin Boots
 Portrait of a Naked Elven Maiden
 Brooch with Family Crest
 Book with Farmer's Poems
-Diary
-Choker
+An adult's Diary
+A choker made of fine silver
 Bronze Cloak Clasp
 Single Hoop Earring
 Silver Locket with a strand of hair inside
@@ -38,7 +38,7 @@ Bear Tooth Necklace
 Pouch of sugar cubes
 Dog collar
 A Bronze Ring wrapped in a piece of leather (cursed)
-Steel Toe-ring
+Steel toe ring
 Ornate copper key
 Jar of raw honey
 Spool of silver wire
@@ -56,7 +56,7 @@ Hemp sack with dried mushrooms
 Small Mirror
 Wood Carving of a Bear
 Poorly Done Wood Carving of an Elk
-A small bell
+A small dinner bell
 A mess kit
 A flask of low quality wine
 Waterskin
@@ -76,7 +76,7 @@ A small flask containing magical liquid (roll for potion)
 A locket containing a strand of golden hair
 A half-eaten sandwich
 A hard-boiled egg
-A small silver bell
+A small silver jingle bell
 A glass eye
 An eye patch
 A bone comb crawling with lice
@@ -94,7 +94,7 @@ Silk pocket square
 Bottle of champagne: "Champagne du Stomp, Wizard of Wines, Baratok Valley"
 Boomerang
 Slingshot
-A large wooden spood
+A large wooden spoon
 Two small apples
 The pits of various stonefruits
 Six bulbs of garlic
@@ -121,8 +121,8 @@ A very delicate silvery chain
 A prototype woman's brassiere
 Bundles of soiled diapers
 Bundle of dirty towels
-Sack of dirty laundry
-Washboard
+A linen sack full of dirty laundry
+A well-made washboard
 Set of sheep shears
 A garden hoe
 A pitch fork
@@ -199,7 +199,7 @@ A sack of recently foraged hallucinogenic mushrooms
 A large jar half full of sourdough mother
 A small jar filled with extremely potent horseradish
 A small wooden box filled with potent libido-enhancing tea
-Six ghost chile peppers (Con save, DC: 20 vs incapacitation)
+Six "Reaper of Bhaal" chili peppers (Con save, DC: 20 vs incapacitation)
 A sack of recently foraged poisonous mushrooms
 A multi-compartment pouch filled with various medicinal materials
 A cloak lined with dozens of hidden pockets
@@ -207,14 +207,14 @@ A random Figurine of Wondrous Power
 A large jar of extremely strong glue
 A roll of wallpaper decorated in a complex floral pattern
 Wooden meat tenderizer
-A smooth, bloodly block of wood the size of a loaf of bread
+A smooth, bloody block of wood the size of a loaf of bread
 Jar of unguent
 A gem which emits constant light
 A buzzer gag ring
-Two unused party poppers from the far east
+Two unused party poppers
 A taxidermied cryptid
 A bundle of freshly-sheared wool
-A sticky wad of candied figs
+A sticky wad of candied dates
 A copper curse plate
 A dead hen
 A skinned and gutted squirrel
@@ -417,3 +417,84 @@ A tiny spool of thread that never runs out
 A tiny clockwork dancer figurine
 A black wooden pipe
 A vial of pungeant perfume
+A child's toy made from a rattlesnake's tail
+A glass bauble made to resemble a gelatinous cube
+A stoneware mug painted with the phrase "Life's a Lich"
+An iron spoon that's also a shiv
+Five small firecrackers
+A woolen headsock with cutouts for eyes and mouth
+A random card from a Wondrous Deck, used
+A piece of skin inscribed with a poem about dragons
+A mandrake root resembling a child with an aged face
+A thin leather-bound book titled "Cloud District" by Nazeem
+Five knee-homing arrows or bolts
+A pair of sharp scissors
+A small clockwork device that can record and play back a brief spoken message
+A small clockwork laser pointer with a range of 60 ft
+A puzzle box that induces headaches
+An improbably ponderous textbook entitled "Principles of Boiling Water"
+A handheld megaphone that changes the sound of one's voice
+The tabard of a local guild
+A paper lizard attached to a stiff metal wire
+A wax tablet inscribed with erotica in a very early version of Common
+A thin copper plate embossed with a man's face, scratched out and perforated
+A heavy bronze ball that fits in the hand
+A wooden stake covered in dried blood
+A fancy mask resembling a wolf's head
+Spectacles that are totally opaque
+A gold-plated chain necklace made of nickel
+A dagger with a painted rubber blade
+A half-finished cross-stitch hoop depicting a shirtless muscled halfling man
+A handful of cohesive green slime
+A pouch of roasted coffee beans
+A leather hood for a falcon
+Three marble-sized lumps of a powerful narcotic
+A clean black bedsheet
+A magical, football-sized cloud that can be held in the hand
+Paper currency from an obscure city-state
+The business card of someone named "Keapon Laffin"
+A ripe banana
+Fifty gold-painted lead counterfeit coins
+A random artisan's toolset
+A handheld brass bottle which, when filled with water, produces a jet of steam
+A potted houseplant
+A pocket notebook filled with the putative secrets of area locals
+A spool of thin metal wire
+Five arrows whose fletchings shed magical light when fired
+A marble which emits an anti-magic field in a six-inch radius
+A 50 ft roll of two-inch wide cotton fabric
+A brown cape spotted with leopard-print pattern
+A jerkin covered in tiny metallic sequins
+An empty, flaccid receptacle made from a pig's bladder
+A magical toy boat that can be steered remotely by an included wand
+A jar of glitter
+An enamel sherriff's badge from a backwater town
+A leather pouch filled with Areca nuts, lime powder, and betel leaves
+A paper packet of marble-sized jawbreaker candies
+Sheet music for 3/4 of a beautiful sonata
+A set of six steel lute strings
+A hand lens which reveals the Fey and the Shadowfell
+A contract between a mortal and Dispater; indestructible
+A Hag Eye of unknown provenance
+A flask of pungeant sauce, a few drops of which enliven any dish
+A capped shaker full of lye powder
+A crown made of braided long grass and reeds
+Six large padlocks on a 5' length of heavy chain
+An ornate wagon wheel hubcap
+An unidentifiable insect in a lump of amber
+The razor-sharp claw-bone of some large animal
+A prank flower-pin that squirts water on command
+A 3 ft hoopak staff
+Half a loaf of very stale black bread
+A spellbook, defaced with "Dennis wuz here" on every page
+A steel machine screw the size of a billy club
+A torn note describing the name of the wind; name missing
+A playbill without a date for a production called "The King in Yellow"
+A paper slip detailing a municipal fine issued on charges of necrophilia
+A bottle of incredibly smoky-tasting brown liquor
+A prosthetic third arm stage prop
+A sacrificial kris whose hilt is a magically-preserved living snake
+A glass eye that blinks periodically
+Wind-up chattering teeth that occasionally utter disturbing things
+A kidney-shaped stone that moves every day
+A novel about a wind-up bird
