@@ -1,0 +1,17 @@
+# Matrix configs for starting areas
+shapes:
+  - square
+  - rectangle
+  - circle
+  - passage
+sizes:
+  square:
+    - 20x20
+    - 40x40
+  rectangle:
+    - 20x40
+    - 20x80
+  circle:
+    - 40
+  passage:
+    - 10
