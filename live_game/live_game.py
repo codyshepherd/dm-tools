@@ -7,7 +7,7 @@ import os
 import pathlib
 import sys
 
-from live_game.game.game import Game
+from live_game.game.game import Game, Character
 
 STDSCR = None
 
@@ -29,6 +29,13 @@ MENU_TEXT = ''
 LOG_BOX = None
 LOG_BOX_TITLE = "Log"
 LOG_BOX_WIDTH = 0
+LEGEND_BOX = None
+LEGEND_BOX_TITLE = "Legend"
+LEGEND_BOX_WIDTH = 0
+LEGEND_BOX_HEIGHT = 0
+LEGEND_BOX_TEXT = ''
+LEGEND_TEXT_LOW = 0
+LEGEND_TEXT_HIGH = 0
 HELP_PANEL = None
 INPUT_PANEL = None
 
@@ -58,7 +65,8 @@ INIT_OPTION_TUPLES = {
     'n': (lambda: handle_next(), 'Next Character'),
     'r': (lambda: remove_character(), 'Remove Character'),
     's': (lambda: sort_init_list(), 'Sort List'),
-    '1-99': (lambda: set_initiative(), 'Set initiative'),
+    '1-99': (lambda: set_initiative(), 'Set Initiative'),
+    'l': (lambda: scroll_legend_down(), 'Scroll Legend'),
 }
 
 STATUS_OPTION_TUPLES = {
@@ -223,6 +231,10 @@ def execute_box_choice(text):
         return f'Set initiative: {name} {text}'
     elif text[0] in ['-', '+']:
         return set_hp(text)
+    elif text == 'l':
+        return scroll_legend_down()
+    elif text == 'L':
+        return scroll_legend_up()
     elif text.lower() in ALL_OPTIONS_TUPLES.keys():
         if len(GAME_STATE.initiative_list) < 1 and text.lower() != 'a':
             return 'no combatants present'
@@ -288,6 +300,23 @@ def is_integer(s):
         return True
     except ValueError:
         return False
+
+
+def legend_box_text():
+    status_icons = [i + ': ' + s.capitalize() for (i, s) in \
+                    zip(Game.attribute_icons, Character.legend_attributes)]
+    conditions = ['Conditions', '---'] + \
+     [i + ': ' + s.capitalize() for (i, s) in \
+      zip(Game.condition_emoji.values(), Game.condition_emoji.keys())]
+
+    modified_kv = [(k,v) for (k,v) in Game.damage_types.items() if k != "bludgeoning, piercing, and slashing from nonmagical weapons that aren't silvered"]
+    modified_kv[-2] = ('Nonsilvered nonmagical', modified_kv[-2][1])
+    modified_kv[-1] = ('Nonmagical', modified_kv[-1][1])
+     
+    damage = ['Dmg Types', '---'] + \
+     [i + ': ' + s.capitalize() for (s, i) in modified_kv]
+
+    return status_icons + [' '] + conditions + [' '] + damage
 
 
 def max_len_append(new_item, the_list, max_len):
@@ -428,6 +457,44 @@ def render_input_panel():
     INPUT_PANEL.box()
 
 
+def scroll_legend_down():
+    global LEGEND_TEXT_LOW
+    global LEGEND_TEXT_HIGH
+
+    LEGEND_TEXT_LOW += 1
+    LEGEND_TEXT_HIGH += 1
+
+    if LEGEND_TEXT_HIGH > len(LEGEND_BOX_TEXT):
+        LEGEND_TEXT_LOW = 0
+        LEGEND_TEXT_HIGH = LEGEND_BOX_HEIGHT - BOX_HEIGHT_PADDING
+    elif LEGEND_TEXT_LOW < 0:
+        LEGEND_TEXT_HIGH = len(LEGEND_BOX_TEXT)
+        LEGEND_TEXT_LOW = LEGEND_TEXT_HIGH - (LEGEND_BOX_HEIGHT - \
+            (BOX_PADDING + BOX_HEIGHT_PADDING))
+
+    LEGEND_BOX.clear()
+    LEGEND_BOX.refresh()
+
+
+def scroll_legend_up():
+    global LEGEND_TEXT_LOW
+    global LEGEND_TEXT_HIGH
+
+    LEGEND_TEXT_LOW -= 1
+    LEGEND_TEXT_HIGH -= 1
+
+    if LEGEND_TEXT_HIGH > len(LEGEND_BOX_TEXT):
+        LEGEND_TEXT_LOW = 0
+        LEGEND_TEXT_HIGH = LEGEND_BOX_HEIGHT - BOX_HEIGHT_PADDING
+    elif LEGEND_TEXT_LOW < 0:
+        LEGEND_TEXT_HIGH = len(LEGEND_BOX_TEXT)
+        LEGEND_TEXT_LOW = LEGEND_TEXT_HIGH - (LEGEND_BOX_HEIGHT - \
+            (BOX_PADDING + BOX_HEIGHT_PADDING))
+
+    LEGEND_BOX.clear()
+    LEGEND_BOX.refresh()
+
+
 def set_hp(text=None):
     display_help_text('; '.join([HELP_TEXT['Hp'], HELP_TEXT['Cancel']]))
     if len(GAME_STATE.initiative_list) < 1:
@@ -475,6 +542,13 @@ def main(pcs, write_changes):
     global MENU_TEXT
     global LOG_BOX
     global LOG_BOX_WIDTH
+    global LEGEND_BOX
+    global LEGEND_BOX_TITLE
+    global LEGEND_BOX_WIDTH
+    global LEGEND_BOX_HEIGHT
+    global LEGEND_BOX_TEXT
+    global LEGEND_TEXT_LOW
+    global LEGEND_TEXT_HIGH
     global GAME_STATE
     global HEIGHT
     global HELP_PANEL
@@ -505,6 +579,7 @@ def main(pcs, write_changes):
     MENU_BOX_WIDTH = max([len(s) for s in MENU_BOX_TEXT]) + BOX_BUFFER_SPACES
     INIT_BOX_WIDTH = 40
     STATUS_BOX_WIDTH = 40
+    LEGEND_BOX_TEXT = legend_box_text()
     LOG_BOX_WIDTH = WIDTH - MENU_BOX_WIDTH - INIT_BOX_WIDTH - \
                     STATUS_BOX_WIDTH - 3
 
@@ -524,6 +599,18 @@ def main(pcs, write_changes):
                              MENU_BOX_WIDTH + 1)
     INIT_BOX.immedok(True)
     INIT_BOX.keypad(True)
+
+    LEGEND_BOX_WIDTH = MENU_BOX_WIDTH
+    LEGEND_BOX_HEIGHT = HEIGHT - MENU_BOX_HEIGHT + BOX_PADDING
+    LEGEND_TEXT_HIGH = LEGEND_BOX_HEIGHT - BOX_PADDING - BOX_HEIGHT_PADDING
+    if LEGEND_TEXT_HIGH > len(LEGEND_BOX_TEXT):
+        LEGEND_TEXT_HIGH = len(LEGEND_BOX_TEXT)
+    LEGEND_BOX = curses.newwin(LEGEND_BOX_HEIGHT-BOX_PADDING,
+                               LEGEND_BOX_WIDTH, HEIGHT - LEGEND_BOX_HEIGHT,
+                               0)
+
+    LEGEND_BOX.immedok(True)
+    LEGEND_BOX.keypad(True)
 
     STATUS_BOX = curses.newwin(HEIGHT-BOX_PADDING, STATUS_BOX_WIDTH, 0,
                                MENU_BOX_WIDTH + INIT_BOX_WIDTH + 2)
@@ -562,6 +649,7 @@ def main(pcs, write_changes):
                 BOX_PADDING
             LOG_BOX_WIDTH = WIDTH - MENU_BOX_WIDTH - INIT_BOX_WIDTH - \
                             STATUS_BOX_WIDTH - 15
+            LEGEND_BOX_HEIGHT = HEIGHT - MENU_BOX_HEIGHT + BOX_PADDING
 
             HELP_PANEL.resize(1, WIDTH)
             INPUT_PANEL.resize(3, WIDTH)
@@ -569,6 +657,7 @@ def main(pcs, write_changes):
 
             STATUS_BOX.resize(HEIGHT-BOX_PADDING, STATUS_BOX_WIDTH)
             LOG_BOX.resize(HEIGHT-BOX_PADDING, LOG_BOX_WIDTH)
+            LEGEND_BOX.resize(LEGEND_BOX_HEIGHT, LEGEND_BOX_WIDTH)
             HELP_PANEL.resize(1, WIDTH)
             INPUT_PANEL.resize(3, WIDTH)
 
@@ -579,6 +668,10 @@ def main(pcs, write_changes):
                           STATUS_BOX_WIDTH +
                           MENU_BOX_WIDTH + 
                           5)
+
+            LEGEND_TEXT_LOW = 0
+            LEGEND_TEXT_HIGH = LEGEND_BOX_HEIGHT - BOX_PADDING - BOX_HEIGHT_PADDING
+            LEGEND_BOX.mvwin(MENU_BOX_HEIGHT - BOX_PADDING, 0)
             HELP_PANEL.mvwin(HEIGHT-2, 0)
             INPUT_PANEL.mvwin(HEIGHT-1, 0)
             clear_refresh_all()
@@ -597,6 +690,9 @@ def main(pcs, write_changes):
                    GAME_STATE.pcs_status_list[:STATUS_CURSOR_MAX_UPPER+1])
         render_box(LOG_BOX, HEIGHT, LOG_BOX_WIDTH, LOG_BOX_TITLE,
                    keystrokes_list)
+        render_box(LEGEND_BOX, LEGEND_BOX_HEIGHT, LEGEND_BOX_WIDTH,
+                   LEGEND_BOX_TITLE,
+                   LEGEND_BOX_TEXT[LEGEND_TEXT_LOW:LEGEND_TEXT_HIGH])
         render_input_panel()
         display_help_text(HELP_TEXT['Quit'])
 
@@ -610,7 +706,7 @@ def main(pcs, write_changes):
             sys.exit(0)
         elif key in RIGHT_LEFT_KEYS:
             continue
-        elif key in ALL_OPTIONS_TUPLES.keys():
+        elif key.lower() in ALL_OPTIONS_TUPLES.keys():
             printout = execute_box_choice(key)
             keystrokes_list = max_len_append(printout, keystrokes_list,
                                              key_list_max_len)
