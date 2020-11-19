@@ -62,10 +62,7 @@ def gen_items(**kwargs):
     items = items.split('\n')
     num = len(items)-1
 
-    pleb_items = list()
-    for i in range(num_items):
-        choice = numpy.random.randint(0, num)
-        pleb_items.append(items[choice])
+    pleb_items = numpy.random.choice(items, size=num_items, replace=False)
 
     if len(pleb_items) < 1:
         return "none"
