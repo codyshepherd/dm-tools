@@ -1,7 +1,5 @@
 # DM Tools
 
-Requires python >= 3.6 and a Bash shell
-
 [![dm-tools](https://snapcraft.io//dm-tools/badge.svg)](https://snapcraft.io/dm-tools)
 
 ## Setup Instructions
@@ -17,6 +15,8 @@ sudo snap install dm-tools
 Invoke with `dm-tools.live-game`, `dm-tools.plebs`, or `dm-tools.pockets`
 
 ### Method 2: Use Pip/Setuptools
+
+Requires python >= 3.6 and a Bash shell
 
 * Clone this repository
 * Create and activate a virtualenv that uses python >= 3.6
@@ -57,7 +57,6 @@ Also features a log of past commands.
 
 ### Future Goals
 - [ ] live update characters' status
-  - [ ] Add a legend for category symbols
   - [ ] Display names and creature type together
   - [ ] Add arbitrary emojis for conditions
   - [ ] Adjust HP for all combatants with a given name regex
