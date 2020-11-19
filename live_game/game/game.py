@@ -16,6 +16,8 @@ class Character(object):
             'vulnerabilities',
     ]
 
+    legend_attributes = [attributes[1]] + attributes[3:]
+
     def __init__(self, argsdict):
         for k, v in argsdict.items():
             setattr(self, k, v)
@@ -46,6 +48,8 @@ class Game(object):
     immunity = chr(0x26d4)
     resistance = chr(0x1f6d1)
     vulnerability = chr(0x1f494)
+
+    attribute_icons = [red_heart, bang, immunity, resistance, vulnerability]
 
     condition_emoji = {
         'blinded': chr(0x1f441),
@@ -81,8 +85,9 @@ class Game(object):
         'radiant': chr(0x1f31e),
         'slashing': chr(0x1f5e1),
         'thunder': chr(0x1f50a),
+        "bludgeoning, piercing, and slashing damage from nonmagical weapons that aren't silvered": chr(0x1f6e0),
+        "bludgeoning, piercing, and slashing from nonmagical weapons": chr(0x1f52a),
         "bludgeoning, piercing, and slashing from nonmagical weapons that aren't silvered": chr(0x1f6e0),
-        "bludgeoning, piercing, and slashing from nonmagical weapons": chr(0x1f6e0),
     }
 
     def __init__(self, **kwargs):
