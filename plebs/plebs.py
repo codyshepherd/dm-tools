@@ -62,7 +62,8 @@ def gen_items(**kwargs):
     items = items.split('\n')
     num = len(items)-1
 
-    pleb_items = numpy.random.choice(items, size=num_items, replace=False)
+    pleb_items = list(numpy.random.choice(
+        items, size=num_items, replace=False))
 
     if len(pleb_items) < 1:
         return "none"
@@ -132,7 +133,9 @@ def pleb(race, **kwargs):
     return p
 
 def stringify(d, pad=''):
-    if isinstance(d, str) or isinstance(d, int) or isinstance(d, float):
+    if d is None:
+        return pad + ''
+    elif isinstance(d, str) or isinstance(d, int) or isinstance(d, float):
         return pad + str(d)
     elif isinstance(d, list):
         return '\n'.join([stringify(i, pad) for i in d])
