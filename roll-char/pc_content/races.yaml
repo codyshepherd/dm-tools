@@ -1,0 +1,438 @@
+- race:
+    name: Dwarf
+    score_increases:
+      - score_increase:
+          score: con
+          mod: 2
+    size: medium
+    speed: 25
+    resistances: 
+      - resistance:
+          type: damage
+          target: poison
+    vision:
+      type: darkvision
+      range: 60
+    languages:
+      - common
+      - dwarvish
+    proficiencies:
+      - proficiency: battleaxe
+      - proficiency: handaxe
+      - proficiency: throwing hammer
+      - proficiency: warhammer
+      - proficiency_choice:
+          - proficiency: smith's tools
+          - proficiency: brewer's supplies
+          - proficiency: mason's tools
+    advantages:
+      - advantage:
+          type: saving throw
+          target: poison
+    features:
+      - feature:
+          type: skill
+          details: |
+            Whenever you make a history check related to the origin of
+            stonework, you are considered proficient in the History skill and
+            add double your proficiency bonus to the check, instead of your
+            normal proficiency bonus
+    subraces:
+      - subrace:
+          name: Hill Dwarf
+          hp_increases:
+            - hp_increase:
+                number: 1
+                cadence: level
+          score_increases:
+            - score_increase:
+                score: wis
+                mod: 1
+      - subrace:
+          name: Mountain Dwarf
+          score_increases:
+            - score_increase:
+                score: str
+                mod: 2
+          proficiencies:
+            - proficiency: light armor
+            - porficiency: medium armor
+- race:
+    name: Elf
+    score_increases:
+      - score_increase:
+          score: dex
+          mod: 2
+    size: medium
+    speed: 30
+    vision:
+      type: darkvision
+      range: 60
+    languages:
+      - common
+      - elvish
+    skills:
+      - skill: perception
+    advantages:
+      - advantage:
+          type: saving throw
+          target: charmed
+    features:
+      - feature:
+          type: immunity
+          details: magic can't put you to sleep
+      - feature:
+          type: feat
+          details: trance for 4 hours instead of taking a long rest
+    subraces:
+      - subrace:
+          name: High Elf
+          score_increases:
+            - score_increase:
+                score: int
+                mod: 1
+          proficiencies:
+            - proficiency: longsword
+            - proficiency: shortsword
+            - proficiency: longbow
+          spells:
+            - spell:
+                name: choice (wizard)
+                ability: int
+                level_acquired: 1
+                spell_level: cantrip
+          languages:
+            - choice
+      - subrace:
+          name: Wood Elf
+          score_increases:
+            - score_increase:
+                score: wis
+                mod: 1
+          proficiencies:
+            - proficiency: longsword
+            - proficiency: shortsword
+            - proficiency: longbow
+            - proficiency: shortbow
+          speed: 35
+          features:
+            - feature:
+                type: feat
+                details: attempt to hide even when only lightly obscured
+      - subrace:
+          name: Drow
+          vision:
+            type: darkvision
+            range: 120
+          score_increases:
+            - score_increase:
+                score: cha
+                mod: 1
+          proficiencies:
+            - proficiency: rapier
+            - proficiency: shortsword
+            - proficiency: hand crossbow
+          spells:
+            - spell:
+                name: dancing lights
+                ability: cha
+                level_acquired: 1
+                spell_level: cantrip
+            - spell:
+                name: faerie fire
+                ability: cha
+                level_acquired: 3
+                spell_level: 1
+            - spell:
+                name: darkness
+                ability: cha
+                level_acquired: 5
+                spell_level: 2
+          features:
+            - feature:
+                type: environmental disadvantage
+                details: disadvantage on sight perception when in direct sunlight
+- race:
+    name: Halfling
+    score_increases:
+      - score_increase:
+          score: dex
+          mod: 2
+    size: small
+    speed: 25
+    languages:
+      - common
+      - halfling
+    advantages:
+      - advantage:
+          type: saving throw
+          target: frightened
+    features:
+      - feature:
+          type: feat
+          details: re-roll rolls of 1 on attack, ability, or saving throw
+      - feature:
+          type: feat
+          details: move through the space of any larger creature
+    subraces:
+      - subrace:
+          name: Lightfoot
+          score_increases:
+            - score_increase:
+                score: cha
+                mod: 1
+          features:
+            - feature:
+                type: feat
+                details: attempt to hide even when obscured by larger creature
+      - subrace:
+          name: Stout
+          score_increases:
+            - score_increase:
+                score: con
+                mod: 1
+          advantages:
+            - advantage:
+                type: saving throw
+                target: poisoned
+          resistances:
+            - resistance:
+                type: damage
+                target: poison
+- race:
+    name: Human
+    score_increases:
+      - score_increase:
+          score: str
+          mod: 1
+      - score_increase:
+          score: dex
+          mod: 1
+      - score_increase:
+          score: con
+          mod: 1
+      - score_increase:
+          score: int
+          mod: 1
+      - score_increase:
+          score: wis
+          mod: 1
+      - score_increase:
+          score: cha
+          mod: 1
+    size: medium
+    speed: 30
+    languages:
+      - common
+      - choice
+- race:
+    name: Dragonborn
+    score_increases:
+      - score_increase:
+          score: str
+          mod: 2
+      - score_increase:
+          score: cha
+          mod: 1
+    size: medium
+    speed: 30
+    languages:
+      - common
+      - draconic
+    attacks:
+      - attack:
+          name: breath weapon
+          type: saving throw
+          save_effect: half damage
+          damage_per_level:
+            - damage:
+                level: 1
+                roll: 2d6
+            - damage:
+                level: 6
+                roll: 3d6
+            - damage:
+                level: 11
+                roll: 4d6
+            - damage:
+                level: 6
+                roll: 5d6
+    subraces:
+      - subrace:
+          name: Black
+          resistances:
+            - resistance:
+                type: damage
+                target: acid
+          racial_damage:
+            damage_type: acid
+            range: 30
+            shape: line
+            saving_throw: dex
+      - subrace:
+          name: Blue
+          resistances:
+            - resistance:
+                type: damage
+                target: lightning
+          racial_damage:
+            damage_type: lightning
+            range: 30
+            shape: line
+            saving_throw: dex
+      - subrace:
+          name: Brass
+          resistances:
+            - resistance:
+                type: damage
+                target: fire
+          racial_damage:
+            damage_type: fire
+            range: 30
+            shape: line
+            saving_throw: dex
+      - subrace:
+          name: Bronze
+          resistances:
+            - resistance:
+                type: damage
+                target: lightning
+          racial_damage:
+            damage_type: lightning
+            range: 30
+            shape: line
+            saving_throw: dex
+      - subrace:
+          name: Copper
+          resistances:
+            - resistance:
+                type: damage
+                target: acid
+          racial_damage:
+            damage_type: acid
+            range: 30
+            shape: line
+            saving_throw: dex
+      - subrace:
+          name: Gold
+          resistances:
+            - resistance:
+                type: damage
+                target: fire
+          racial_damage:
+            damage_type: fire
+            range: 15
+            shape: cone
+            saving_throw: dex
+      - subrace:
+          name: Green
+          resistances:
+            - resistance:
+                type: damage
+                target: poison
+          racial_damage:
+            damage_type: poison
+            range: 15
+            shape: cone
+            saving_throw: con
+      - subrace:
+          name: Red
+          resistances:
+            - resistance:
+                type: damage
+                target: fire
+          racial_damage:
+            damage_type: fire
+            range: 15
+            shape: cone
+            saving_throw: dex
+      - subrace:
+          name: Silver
+          resistances:
+            - resistance:
+                type: damage
+                target: cold
+          racial_damage:
+            damage_type: cold
+            range: 15
+            shape: cone
+            saving_throw: con
+      - subrace:
+          name: White
+          resistances:
+            - resistance:
+                type: damage
+                target: cold
+          racial_damage:
+            damage_type: cold
+            range: 15
+            shape: cone
+            saving_throw: con
+- race:
+    name: Gnome
+    score_increases:
+      - score_increase:
+          score: int
+          mod: 2
+    size: small
+    speed: 25
+    vision:
+      type: darkvision
+      range: 60
+    languages:
+      - common
+      - gnomish
+    advantages:
+      - advantage:
+          type: saving throw
+          target: magic (int, wis, cha)
+    subraces:
+      - subrace:
+          name: Rock
+          score_increases:
+            - score_increase:
+                score: con
+                mod: 1
+          features:
+            - feature:
+                type: skill
+                details: |
+                  add twice your proficiency bonus for history checks related
+                  to magic, alchemy, or technology
+            - feature:
+                type: feat
+                details: |
+                  construct up to three tiny clockwork devices at any time:
+                  Clockwork Toy, Fire Starter, or Music Box
+          proficiencies:
+            - proficiency: tinker's tools
+      - subrace:
+          name: Deep
+          score_increases:
+            - score_increase:
+                score: dex
+                mod: 1
+          vision:
+            type: darkvision
+            range: 120
+          advantages:
+            - advantage:
+                type: skill
+                target: stealth
+                details: when in rocky terrain
+      - subrace:
+          name: Forest
+          score_increases:
+            - score_increase:
+                score: dex
+                mod: 1
+          spells:
+            - spell:
+                name: minor illusion
+                ability: int
+                level_acquired: 1
+                spell_level: cantrip
+          features:
+            - feature:
+                type: feat
+                details: communicate simple ideas to small or smaller beasts
