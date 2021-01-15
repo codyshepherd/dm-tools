@@ -55,6 +55,8 @@ class Api(object):
         res_list = ''
         for r in res:
             res_list += game.Game.damage_types[r]
+            if r != res[-1]:
+                res_list += ' '
 
         return res_list
 
@@ -69,6 +71,8 @@ class Api(object):
         vuln_list = ''
         for v in vuln:
             vuln_list += game.Game.damage_types[v]
+            if v != vuln[-1]:
+                vuln_list += ' '
 
         return vuln_list
 
@@ -84,8 +88,12 @@ class Api(object):
         imm_list = []
         for imm in dmg_imm:
             imm_list.append(game.Game.damage_types[imm])
+            if imm != dmg_imm[-1] or len(cond_imm) > 0:
+                imm_list.append(' ')
         for imm in cond_imm:
             imm_name = imm['name'].lower()
             imm_list.append(game.Game.condition_emoji[imm_name])
+            if imm != cond_imm[-1]:
+                imm_list.append(' ')
 
         return ''.join(imm_list)

@@ -114,8 +114,6 @@ def add_character():
         return "no input"
 
     GAME_STATE.add_character(name)
-    INIT_BOX.clear()
-    STATUS_BOX.clear()
     return f'Add {name}'
 
 
@@ -132,7 +130,6 @@ def add_condition():
         status = 'failure'
     else:
         status = GAME_STATE.set_condition(name, cond)
-    STATUS_BOX.clear()
     return f'added condition {cond} to {name} {status}'
 
 
@@ -184,7 +181,6 @@ def defer_initiative():
     name = ' '.join(init_and_name_list[1:])
     GAME_STATE.defer_initiative()
     INIT_BOX.clear()
-    INIT_BOX.refresh()
     return f'defer: {name}'
 
 
@@ -280,7 +276,6 @@ def get_status_owner():
 def handle_next():
     GAME_STATE.next_initiative()
     INIT_BOX.clear()
-    INIT_BOX.refresh()
     return ' '.join(GAME_STATE.initiative_list[0].split()[1:])
 
 
@@ -466,14 +461,13 @@ def scroll_legend_down():
 
     if LEGEND_TEXT_HIGH > len(LEGEND_BOX_TEXT):
         LEGEND_TEXT_LOW = 0
-        LEGEND_TEXT_HIGH = LEGEND_BOX_HEIGHT - BOX_HEIGHT_PADDING
+        LEGEND_TEXT_HIGH = LEGEND_BOX_HEIGHT - BOX_PADDING - BOX_HEIGHT_PADDING
     elif LEGEND_TEXT_LOW < 0:
         LEGEND_TEXT_HIGH = len(LEGEND_BOX_TEXT)
         LEGEND_TEXT_LOW = LEGEND_TEXT_HIGH - (LEGEND_BOX_HEIGHT - \
             (BOX_PADDING + BOX_HEIGHT_PADDING))
 
     LEGEND_BOX.clear()
-    LEGEND_BOX.refresh()
 
 
 def scroll_legend_up():
@@ -485,14 +479,13 @@ def scroll_legend_up():
 
     if LEGEND_TEXT_HIGH > len(LEGEND_BOX_TEXT):
         LEGEND_TEXT_LOW = 0
-        LEGEND_TEXT_HIGH = LEGEND_BOX_HEIGHT - BOX_HEIGHT_PADDING
+        LEGEND_TEXT_HIGH = LEGEND_BOX_HEIGHT - BOX_PADDING - BOX_HEIGHT_PADDING
     elif LEGEND_TEXT_LOW < 0:
         LEGEND_TEXT_HIGH = len(LEGEND_BOX_TEXT)
         LEGEND_TEXT_LOW = LEGEND_TEXT_HIGH - (LEGEND_BOX_HEIGHT - \
             (BOX_PADDING + BOX_HEIGHT_PADDING))
 
     LEGEND_BOX.clear()
-    LEGEND_BOX.refresh()
 
 
 def set_hp(text=None):
@@ -716,6 +709,8 @@ def main(pcs, write_changes):
             printout = execute_box_choice(text)
             keystrokes_list = max_len_append(printout, keystrokes_list,
                                              key_list_max_len)
+        LOG_BOX.clear()
+        LOG_BOX.refresh()
 
 
 @click.command()
