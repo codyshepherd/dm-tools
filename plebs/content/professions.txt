@@ -1,56 +1,111 @@
-Rope maker
-Tanner
-Hunter
-Dairy farmer
-Saddler
-Stablehand
-Fisherman
-Woodworker
-Lumberjack
-Small game trapper
-Wheat farmer
-Corn farmer
-Shepherd
-Cleaning man at the tavern
-Baker's apprentice
-Horse stall mucker
-Trash collector
-Unemployed
-Leather goods apprentice
-Butcher
-Lantern maker
-Village idiot
-Miller
-Fishmonger
-Falconer
-Plowman
-Stonemason
-Mason
-Watchman
-Wheelwright
-Roofer
-Locksmith's apprentice
-Tanner
-Tax Collector
-Belt Maker
-Merchant
-Carpenter
-Cook
+Alchemist
+Armorer
+Baker
+Barber
+Barhand
 Blacksmith
-Furrier
-Weaver
 Brewer
-Gongfarmer
+Bricklayer
+Burglar
 Busker
-Cobbler
-Barrel Maker
-Pickler
+Butcher
+Caravaner
+Carpenter
 Cartwright
-Minstrel (flute)
-Public bath house attendant
-Well digger
+Chirugeon
+Clerk
+Cobbler
+Cook
+Cooper
+Councilperson
+Courier
+Deacon
+Distiller
+Driver
+Engineer
+Falconer
+Farmer
+Ferrier
+Fireman
+Fisherman
+Fishmonger
+Fletcher
+Furrier
 Gatekeeper
+Glazer
+Goatherd
+Grocer
+Groomsman
 Guard
+Guide
+Healer
+Horse stall mucker
+Houndmaster
+Hunter
+Illuminator
+Innkeeper
+Janitor
+Jeweler
 Lamplighter
+Landlord
+Lantern maker
+Leatherworker
+Locksmith
+Lumberjack
+Mason
+Merchant
+Miller
+Milliner
+Miner
+Minstrel
+Mower
+Nurse
+Oracle
+Paige
+Performer
+Pickler
 Pig farmer
+Plowman
+Porter
+Potter
+Printer
+Public bath house attendant
+Rancher
+Roofer
+Rope maker
+Saddler
+Sailor
+Schoolteacher
+Scribe
+Servant
+Shepherd
+Shipwright
+Soldier
+Stablehand
+Stonecarver
+Stonemason
+Swinherd
+Tailor
+Tanner
+Tax collector
+Thief
+Tiller
+Tinker
+Town crier
+Toymaker
+Tracker
+Trapper
+Trash collector
+Undertaker
+Unemployed
+Vendor
+Village idiot
 Vinegar maker
+Vintner
+Waiter
+Washer
+Watchman
+Weaver
+Well digger
+Wheelwright
+Woodworker

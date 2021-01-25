@@ -97,6 +97,28 @@ def gen_name(**kwargs):
     return name
 
 
+def gen_personality(**kwargs):
+    personality_file = kwargs.get('personality', 'personality.txt')
+    path = os.path.join(CONTENT_DIR, personality_file)
+    with open(path, 'r') as fh:
+       pers = fh.read()
+    pers = pers.split('\n')
+    num_pers = 3
+    choice = list(numpy.random.choice(pers, size=num_pers, replace=False))
+    return choice
+
+
+def gen_problems(**kwargs):
+    problems_file = kwargs.get('problems', 'problems.txt')
+    path = os.path.join(CONTENT_DIR, problems_file)
+    with open(path, 'r') as fh:
+        probs = fh.read()
+    probs = probs.split('\n')
+    num = len(probs)-1
+    choice = numpy.random.randint(0, num)
+    return probs[choice]
+
+
 def return_race(**kwargs):
     return kwargs['race']
 
@@ -139,7 +161,7 @@ def stringify(d, pad=''):
         return pad + str(d)
     elif isinstance(d, list):
         return '\n'.join([stringify(i, pad) for i in d])
-    if isinstance(d, dict):
+    elif isinstance(d, dict):
         string = ''
         for k, v in d.items():
             enter = ''
@@ -149,6 +171,8 @@ def stringify(d, pad=''):
                 enter = '\n'
             string += f'{k}:{enter}{v}\n'
         return string
+    else:
+        return pad
 
 
 FUNCTIONS = {
@@ -160,6 +184,8 @@ FUNCTIONS = {
   'stats': gen_stats,
   'items': gen_items,
   'profession': gen_profession,
+  'personality': gen_personality,
+  'problem': gen_problems,
 }
 
 
