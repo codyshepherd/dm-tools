@@ -1,5 +1,6 @@
 import names
 import numpy
+import os
 import petname
 import random
 import re
@@ -29,11 +30,10 @@ def name_gen_normcore(**kwargs):
 
 def name_gen_prob(**kwargs):
     max_len = kwargs.get('max_len', 10)
-    print("name_gen")
     name = []
     name_len = random.randint(3, max_len)
 
-    with open('name_gen/probs.yaml', 'r') as fh:
+    with open(os.path.join('plebs/name_gen', 'probs.yaml'), 'r') as fh:
         probs = yaml.safe_load(fh)
 
     letters = list(probs.keys())
@@ -77,8 +77,9 @@ def name_gen_alternator(**kwargs):
     v_seq_len = 0
     cons_seq_len = 0
     while len(name) < name_len:
-        choice = numpy.random.choice([VOWELS, CONSONANTS],
+        choice_num = numpy.random.choice([0, 1],
                                      p=[v_prob, cons_prob])
+        choice = [VOWELS, CONSONANTS][choice_num]
         letter = numpy.random.choice(list(choice))
         name += letter
 
