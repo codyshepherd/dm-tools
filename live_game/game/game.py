@@ -10,6 +10,7 @@ class Character(object):
             'name',
             'hp',
             'tmp_hp',
+            'init_bonus',
             'conditions',
             'immunities',
             'resistances',
@@ -31,15 +32,22 @@ class Character(object):
                     hp = argsdict.get('hp', 1)
                     hp = hp if hp > 0 else 1
                     setattr(self, att, str(hp))
+                elif att == 'init_bonus':
+                    bonus = int(argsdict.get('init_bonus', '0'))
+                    setattr(self, att, bonus)
                 else:
                     setattr(self, att, '')
 
     def edit_name(self, newname):
         setattr(self, 'name', newname)
 
+    def set_init_bonus(self, bonus):
+        setattr(self, 'init_bonus', bonus)
+
 
 class Game(object):
     red_heart = chr(0x1f493)
+    init = chr(0x1f300)
     yellow_heart = chr(0x1f49b)
     green_heart = chr(0x1f49a)
     skull = chr(0x1f480)
@@ -49,7 +57,7 @@ class Game(object):
     resistance = chr(0x1f6d1)
     vulnerability = chr(0x1f494)
 
-    attribute_icons = [red_heart, bang, immunity, resistance, vulnerability]
+    attribute_icons = [red_heart, init, bang, immunity, resistance, vulnerability]
 
     condition_emoji = {
         'blinded': chr(0x1f441),
@@ -205,6 +213,7 @@ class Game(object):
             tmp_hp = getattr(ch, 'tmp_hp')
             frac = float(tmp_hp) / float(hp)
             frac_text = f'{tmp_hp}/{hp}'
+            init_bonus = getattr(ch, 'init_bonus', '')
             conditions = getattr(ch, 'conditions', '')
             immunities = getattr(ch, 'immunities', '')
             resistances = getattr(ch, 'resistances', '')
@@ -219,6 +228,7 @@ class Game(object):
 
             ret_list.append(f'Name: {name}')
             ret_list.append(f'  {heart} : {frac_text}')
+            ret_list.append(f'  {Game.init}: {init_bonus}')
             ret_list.append(f'  {Game.bang}: {conditions}')
             ret_list.append(f'  {Game.immunity}: {immunities}')
             ret_list.append(f'  {Game.resistance}: {resistances}')
@@ -282,6 +292,18 @@ class Game(object):
             self.write_state()
         return 'success'
 
+    def set_init_bonus(self, name, value):
+        char = self.pcs.get(name, None)
+
+        if char is not None:
+            char.set_init_bonus(value)
+
+        self.make_pcs_status_list()
+        self.promote_pc_in_status_list(name)
+        self.write_state()
+
+        return char is not None
+
     def set_initiative(self, name_expr, value):
         for name in self.pc_names:
             if re.match(name_expr, name):
@@ -343,6 +365,7 @@ class Game(object):
             character = {}
             character['name'] = name
             character['hp'] = self.pcs[name].hp
+            character['init_bonus'] = self.pcs[name].init_bonus
             character['conditions'] = self.pcs[name].conditions
             character['immunities'] = self.pcs[name].immunities
             entry['character'] = character

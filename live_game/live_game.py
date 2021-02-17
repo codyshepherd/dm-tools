@@ -5,6 +5,7 @@ import curses
 import curses.ascii
 import os
 import pathlib
+import random
 import sys
 
 from live_game.game.game import Game, Character
@@ -67,6 +68,8 @@ INIT_OPTION_TUPLES = {
     's': (lambda: sort_init_list(), 'Sort List'),
     '1-99': (lambda: set_initiative(), 'Set Initiative'),
     'l': (lambda: scroll_legend_down(), 'Scroll Legend'),
+    'b': (lambda: set_init_bonus(), 'Set Initiative Bonus'),
+    'i': (lambda: auto_initiative(), 'Auto Initiative'),
 }
 
 STATUS_OPTION_TUPLES = {
@@ -84,6 +87,7 @@ HELP_TEXT = {
     'Cancel': 'Hit `\u0331 (backtick) to Cancel',
     'Conditions': 'Enter a condition',
     'Hp': 'Enter a number to set max HP; prepend -/+ to adjust temp HP',
+    'InitBonus': 'Enter a number to set initiative bonus',
     'Quit': 'Hit q\u0331 to Quit',
     'Remove': 'Select condition icon to remove',
     INIT_BOX_TITLE: '  '.join([k+'\u0331: {}'.format(v[1]) for k,v in
@@ -145,6 +149,21 @@ def adjust_box_indices(box, lower_val, upper_val):
         STATUS_LIST_UPPER_INDEX = upper_val
     '''
     pass
+
+
+def auto_initiative():
+
+    rolls = []
+
+    for pc in GAME_STATE.pcs:
+        roll = random.randint(1, 20)
+        rolls.append(f'  {pc}: {roll}')
+        bonus = GAME_STATE.pcs[pc].init_bonus
+        result = roll + bonus
+        GAME_STATE.set_initiative(pc, str(result))
+
+    sort_init_list()
+    return ['Auto Initiative'] + rolls
 
 
 def clear_help_text():
@@ -224,6 +243,7 @@ def execute_box_choice(text):
         name = GAME_STATE.initiative_list[CURSOR_INDEX]
         name = ' '.join(name.split()[1:])
         GAME_STATE.set_initiative(name, text)
+        INIT_BOX.clear()
         return f'Set initiative: {name} {text}'
     elif text[0] in ['-', '+']:
         return set_hp(text)
@@ -315,11 +335,20 @@ def legend_box_text():
 
 
 def max_len_append(new_item, the_list, max_len):
+    if new_item is None:
+        return the_list
+    if type(new_item) == str:
+        the_list.append(new_item)
+    elif type(new_item) == list:
+        the_list.extend(new_item)
+    else:
+        the_list.append(str(new_item))
+
     ln = len(the_list)
     diff = ln - max_len
     if diff >= 0:
-        the_list = the_list[diff+1:]
-    the_list.append(new_item)
+        the_list = the_list[diff:]
+
     return the_list
 
 
@@ -514,6 +543,27 @@ def set_hp(text=None):
 
     STATUS_BOX.clear()
     return ' '.join([name, change_str])
+
+
+def set_init_bonus(text=None):
+    display_help_text('; '.join([HELP_TEXT['InitBonus'], HELP_TEXT['Cancel']]))
+    if len(GAME_STATE.initiative_list) < 1:
+        return 'no combatants present'
+    name = GAME_STATE.initiative_list[CURSOR_INDEX]
+    name = ' '.join(name.split()[1:])
+
+    if text is None or len(text) < 1:
+        change = get_input()
+    else:
+        change = text
+
+    if not is_integer(change):
+        return 'non-integer input'
+
+    GAME_STATE.set_init_bonus(name, int(change))
+
+    STATUS_BOX.clear()
+    return ' '.join([name, change])
 
 
 def sort_init_list():
