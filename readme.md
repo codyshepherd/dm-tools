@@ -12,7 +12,9 @@
 sudo snap install dm-tools
 ```
 
-Invoke with `dm-tools.live-game`, `dm-tools.plebs`, or `dm-tools.pockets`
+| :zap:  Invoke with `dm-tools.live-game`, `dm-tools.plebs`, or `dm-tools.pockets`  not with `dm-tools` |
+|-------------------------------------------------------------------------------------------------------|
+
 
 ### Method 2: Use Pip/Setuptools
 
