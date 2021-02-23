@@ -9,6 +9,10 @@ description: |
   Features auto-population of stats for SRD monsters, randomly-generated pocket
   items for NPCs, and several flavors of name generator algorithms.
 
+  Invoke the different tools in your terminal by running: 
+  dm-tools.live-game, dm-tools.plebs, or dm-tools.pockets
+  and make sure to make it full screen, otherwise it complains.  
+
   https://www.dm-tools.dev
   https://github.com/codyshepherd/dm-tools
 
