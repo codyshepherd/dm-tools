@@ -130,8 +130,8 @@ class Game(object):
         self.pcs[name] = character
 
         self.pc_names.append(name)
-        self.initiative_list.append(f'0 {name}')
         self.initiative[name] = 0
+        self.update_initiative_list()
         self.make_pcs_status_list()
         self.write_state()
 
@@ -189,18 +189,9 @@ class Game(object):
         self.make_pcs_status_list()
 
     def make_initiative_list(self):
-        if not hasattr(self, 'initiative_list'):
-            sorted_pc_names = self.pc_names
-        else:
-            sorted_pc_names = []
-            for item in self.initiative_list:
-                name = ' '.join(item.split()[1:])
-                if name in self.pc_names:
-                    sorted_pc_names.append(name)
-
-        self.initiative_list = [
+        self.initiative_list = sorted([
             '{} {}'.format(self.initiative[name], name) for name in
-            sorted_pc_names]
+            self.pc_names], reverse=True)
 
     def make_pcs_status_list(self):
         ret_list = []
@@ -309,7 +300,7 @@ class Game(object):
             if re.match(name_expr, name):
                 self.initiative[name] = value
 
-        self.make_initiative_list()
+        self.update_initiative_list()
 
     def sort_init_list(self):
         temp = sorted(self.initiative.keys(),
@@ -357,6 +348,21 @@ class Game(object):
 
         if write_changes:
             self.write_state()
+
+    def update_initiative_list(self):
+        newlist = []
+        added = []
+        for item in self.initiative_list:
+            name = ' '.join(item.split(' ')[1:])
+            newlist.append(f'{self.initiative[name]} {name}')
+            added.append(name)
+
+        for name in self.pc_names:
+            if name not in added:
+                newlist.append(f'0 {name}')
+
+        self.initiative_list = newlist
+
 
     def write_state(self):
         new = []
