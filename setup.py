@@ -19,9 +19,9 @@ setup(
     long_description=__doc__,
     packages=find_packages(exclude=['tests']),
     include_package_data=True,
-    package_data = {
+    package_data={
         'plebs': ['*.txt', '*.yaml'],
-        'pockets': ['*.txt', '*.yaml'],    
+        'pockets': ['*.txt', '*.yaml'],
     },
     zip_safe=False,
     platforms='any',

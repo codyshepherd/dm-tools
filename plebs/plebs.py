@@ -60,7 +60,6 @@ def gen_items(**kwargs):
     with open(path, 'r') as fh:
         items = fh.read()
     items = items.split('\n')
-    num = len(items)-1
 
     pleb_items = list(numpy.random.choice(
         items, size=num_items, replace=False))
@@ -101,8 +100,8 @@ def gen_personality(**kwargs):
     personality_file = kwargs.get('personality', 'personality.txt')
     path = os.path.join(CONTENT_DIR, personality_file)
     with open(path, 'r') as fh:
-       pers = fh.read()
-    pers = pers.split('\n')
+        pers = fh.read()
+    pers = pers.strip().split('\n')
     num_pers = 3
     choice = list(numpy.random.choice(pers, size=num_pers, replace=False))
     return choice
@@ -153,6 +152,7 @@ def pleb(race, **kwargs):
         kwargs[f] = val
         p[f] = val
     return p
+
 
 def stringify(d, pad=''):
     if d is None:

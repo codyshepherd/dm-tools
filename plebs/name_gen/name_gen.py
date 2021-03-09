@@ -10,7 +10,7 @@ import yaml
 from . import phonemes
 
 VOWELS = ('a', 'e', 'i', 'o', 'u', 'y')
-CONSONANTS = tuple(l for l in string.ascii_lowercase if l not in VOWELS)
+CONSONANTS = tuple(c for c in string.ascii_lowercase if c not in VOWELS)
 LETTER_TYPES = (VOWELS, CONSONANTS)
 
 
@@ -40,8 +40,7 @@ def name_gen_prob(**kwargs):
     dist = list(probs.values())
     sumdist = sum(dist)
     diff = 1.0 - sumdist
-    dist[16] += diff    # add any residual required probability to q, for that
-                        # fantasy name panache
+    dist[16] += diff    # add any residual required probability to q, for that fantasy name panache # noqa: E501
 
     while len(name) < name_len:
         name.append(numpy.random.choice(letters, p=dist))
@@ -78,7 +77,7 @@ def name_gen_alternator(**kwargs):
     cons_seq_len = 0
     while len(name) < name_len:
         choice_num = numpy.random.choice([0, 1],
-                                     p=[v_prob, cons_prob])
+                                         p=[v_prob, cons_prob])
         choice = [VOWELS, CONSONANTS][choice_num]
         letter = numpy.random.choice(list(choice))
         name += letter
@@ -120,13 +119,12 @@ def name_gen_alternator(**kwargs):
 
 def name_gen_phonemes(**kwargs):
     max_len = kwargs.get('max_len', 10)
-    name = ''
     name_len = random.randint(3, max_len)
     return phonemes.generate_string(name_len).capitalize()
 
 
 def name_gen_petname(**kwargs):
-    words = kwargs.get('words', random.randint(1,4))
+    words = kwargs.get('words', random.randint(1, 4))
     word_len = kwargs.get('word_len', random.randint(3, 10))
 
     first_last = kwargs.get('first_last', 'first')
@@ -137,7 +135,3 @@ def name_gen_petname(**kwargs):
         return ' '.join(name.split(' ')[:-1])
     else:
         return name.split(' ')[-1]
-
-
-if __name__ == "__main__":
-    print(name_gen())

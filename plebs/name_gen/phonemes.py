@@ -17,6 +17,7 @@ from __future__ import unicode_literals
 
 import random
 
+
 class _Phoneme(object):
     phoneme = None
     dipthong = False
@@ -27,11 +28,14 @@ class _Phoneme(object):
         self.dipthong = dipthong
         self.not_first = not_first
 
+
 class _Consonant(_Phoneme):
     pass
 
+
 class _Vowel(_Phoneme):
     pass
+
 
 _phonemes = [
     _Vowel('a'),
@@ -76,6 +80,7 @@ _phonemes = [
     _Consonant('z'),
 ]
 
+
 def _phoneme_generator():
     rs = random.SystemRandom()
     prev_type = _Consonant
@@ -84,10 +89,10 @@ def _phoneme_generator():
 
     while True:
         if first:
-            candidates = [ e for e in _phonemes if not e.not_first ]
+            candidates = [e for e in _phonemes if not e.not_first]
             first = False
         else:
-            candidates = [ e for e in _phonemes if isinstance(e, next_type) ]
+            candidates = [e for e in _phonemes if isinstance(e, next_type)]
 
         phoneme = rs.choice(candidates)
         yield phoneme

@@ -45,6 +45,16 @@ class Api(object):
         return self.monster_cache[name].get('hit_points', 1)
 
     @convert_name
+    def monster_init_bonus(self, name: str) -> int:
+        import live_game.game.game as game
+        monster = self.monster_cache.get(name, None)
+        if monster is None:
+            return 0
+        dex = monster.get('dexterity', 10)
+        init_b = game.Rules.ability_score_modifiers.get(dex, 0)
+        return init_b
+
+    @convert_name
     def monster_resistances(self, name: str) -> str:
         import live_game.game.game as game
         monster = self.monster_cache.get(name, None)
