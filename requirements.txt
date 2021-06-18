@@ -1,7 +1,8 @@
 click
-pyyaml
+django
 names
 numpy
 petname
+pyyaml
 requests
 typing

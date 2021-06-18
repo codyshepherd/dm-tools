@@ -175,6 +175,30 @@ def stringify(d, pad=''):
         return pad
 
 
+def web_make(number, name_generator='phoneme'):
+
+    config_yaml = os.path.join(OUT_DIR, 'default-config.yaml')
+    with open(config_yaml, 'r') as fh:
+        config = yaml.safe_load(fh)
+    config['name_generator'] = name_generator
+
+    global ATTRIBUTES
+    ATTRIBUTES = config['attributes']
+
+    races_and_probs = config.get('races', ['Human', 1.0])
+    races = [r[0] for r in races_and_probs]
+    probs = [r[1] for r in races_and_probs]
+
+    ps = {}
+    for i in range(number):
+        race = numpy.random.choice(races, p=probs)
+        p = pleb(race, **config)
+        ps[p['name']] = p
+
+    string = stringify(ps)
+    return string
+
+
 FUNCTIONS = {
   'age': gen_age,
   'gender': gen_gender,
