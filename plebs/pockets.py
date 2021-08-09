@@ -7,6 +7,10 @@ from plebs.plebs import gen_items
 OUT_DIR = os.path.dirname(__file__)
 
 
+def _pockets(number: int):
+    return gen_items(**{'num_items': number})
+
+
 @click.command()
 @click.option('-n', '--number', type=int,
               help="The number of items to generate", default=1)
@@ -20,6 +24,7 @@ def pockets(number, yaml_dump):
     print(string)
     if yaml_dump:
         pass
+
 
 
 if __name__ == '__main__':

@@ -1,0 +1,245 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "API for dm-tools content",
+    "version": "1.0.0",
+    "title": "dm-tools API",
+    "contact": {
+      "email": "cody.shepherd@gmail.com"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "host": "virtserver.swaggerhub.com",
+  "basePath": "/codyshepherd/dm-tools/1.0.0",
+  "tags": [
+    {
+      "name": "admins",
+      "description": "Secured Admin-only calls"
+    },
+    {
+      "name": "developers",
+      "description": "Operations available to regular developers"
+    }
+  ],
+  "schemes": [
+    "https",
+    "http"
+  ],
+  "paths": {
+    "/pockets": {
+      "get": {
+        "tags": [
+          "developers"
+        ],
+        "summary": "returns some number of pocket items",
+        "description": "By passing in the appropriate options, you can request a number\nof pocket items\n",
+        "operationId": "getPockets",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "number",
+            "in": "query",
+            "description": "pass an optional number of items to return",
+            "required": false,
+            "type": "integer",
+            "maximum": 100,
+            "minimum": 1,
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "one or more pocket items",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/PocketItem"
+              }
+            }
+          },
+          "400": {
+            "description": "bad input parameter"
+          }
+        }
+      }
+    },
+    "/plebs": {
+      "get": {
+        "tags": [
+          "developers"
+        ],
+        "summary": "returns some number of pleb NPC objects",
+        "description": "By passing in the appropriate options, you can request a number\nof pleb NPCs\n",
+        "operationId": "getPlebs",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "number",
+            "in": "query",
+            "description": "pass an optional number of items to return",
+            "required": false,
+            "type": "integer",
+            "maximum": 10,
+            "minimum": 1,
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "one or more NPC objects",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Pleb"
+              }
+            }
+          },
+          "400": {
+            "description": "bad input parameter"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "PocketItem": {
+      "type": "string"
+    },
+    "Pleb": {
+      "type": "object",
+      "required": [
+        "age",
+        "gender",
+        "hp",
+        "items",
+        "name",
+        "personality",
+        "problem",
+        "profession",
+        "race",
+        "stats"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "example": "Marie Curie"
+        },
+        "age": {
+          "type": "integer",
+          "format": "int32",
+          "example": 42
+        },
+        "gender": {
+          "type": "string",
+          "example": "female"
+        },
+        "hp": {
+          "type": "integer",
+          "format": "int32",
+          "example": 42
+        },
+        "race": {
+          "type": "string",
+          "example": "human"
+        },
+        "stats": {
+          "$ref": "#/definitions/Stats"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PocketItem"
+          }
+        },
+        "profession": {
+          "type": "string",
+          "example": "cooper"
+        },
+        "personality": {
+          "$ref": "#/definitions/Personality"
+        },
+        "problem": {
+          "type": "string",
+          "example": "Recently broke up with partner"
+        }
+      }
+    },
+    "Stats": {
+      "type": "object",
+      "required": [
+        "cha",
+        "con",
+        "dex",
+        "int",
+        "str",
+        "wis"
+      ],
+      "properties": {
+        "str": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 1,
+          "maximum": 30
+        },
+        "dex": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 1,
+          "maximum": 30
+        },
+        "con": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 1,
+          "maximum": 30
+        },
+        "int": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 1,
+          "maximum": 30
+        },
+        "wis": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 1,
+          "maximum": 30
+        },
+        "cha": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 1,
+          "maximum": 30
+        }
+      }
+    },
+    "Personality": {
+      "required": [
+        "trait1",
+        "trait2",
+        "trait3"
+      ],
+      "properties": {
+        "trait1": {
+          "type": "string",
+          "example": "abrasive"
+        },
+        "trait2": {
+          "type": "string",
+          "example": "abrasive"
+        },
+        "trait3": {
+          "type": "string",
+          "example": "abrasive"
+        }
+      }
+    }
+  }
+}

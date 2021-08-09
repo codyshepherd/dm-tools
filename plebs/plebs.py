@@ -189,6 +189,31 @@ FUNCTIONS = {
 }
 
 
+def _plebs(number: int):
+    config_yaml = os.path.join(OUT_DIR, 'default-config.yaml')
+    with open(config_yaml, 'r') as fh:
+        config = yaml.safe_load(fh)
+    if not os.path.exists(OUT_DIR):
+        pathlib.Path(OUT_DIR).mkdir(parents=True, exist_ok=True)
+
+    config['name_generator'] = 'phoneme'
+
+    global ATTRIBUTES
+    ATTRIBUTES = config['attributes']
+
+    races_and_probs = config.get('races', ['Human', 1.0])
+    races = [r[0] for r in races_and_probs]
+    probs = [r[1] for r in races_and_probs]
+
+    ps = []
+    for i in range(number):
+        race = numpy.random.choice(races, p=probs)
+        p = pleb(race, **config)
+        ps.append(p)
+
+    return ps
+
+
 @click.command()
 @click.option('-n', '--number', type=int,
               help="The number of plebs to create", default=1)
