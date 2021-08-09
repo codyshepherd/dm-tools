@@ -1,7 +1,8 @@
 click
-pyyaml
+fastapi[all]
 names
 numpy
 petname
+pyyaml
 requests
 typing
