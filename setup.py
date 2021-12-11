@@ -22,6 +22,7 @@ setup(
     package_data={
         'plebs': ['*.txt', '*.yaml'],
         'pockets': ['*.txt', '*.yaml'],
+        'taverns': ['*.txt', '*.yaml'],
     },
     zip_safe=False,
     platforms='any',
@@ -32,6 +33,7 @@ setup(
             'live-game = live_game.live_game:start',
             'plebs = plebs.plebs:plebs',
             'pockets = plebs.pockets:pockets',
+            'taverns = taverns.taverns:taverns',
         ],
     },
 )

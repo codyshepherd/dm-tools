@@ -7,7 +7,7 @@ class AppState(object):
     def __init__(self,
                  visits_file="visits.txt",
                  visitors_file="visitors.txt",
-                 write_freq=1000):
+                 write_freq=10):
 
         self._visits_file_path = visits_file
         self._visitors_file_path = visitors_file
