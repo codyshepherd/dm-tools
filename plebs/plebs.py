@@ -189,7 +189,7 @@ FUNCTIONS = {
 }
 
 
-def _plebs(number: int):
+def _plebs(number: int=1, **kwargs):
     config_yaml = os.path.join(OUT_DIR, 'default-config.yaml')
     with open(config_yaml, 'r') as fh:
         config = yaml.safe_load(fh)

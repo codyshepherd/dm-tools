@@ -8,6 +8,7 @@ sys.path.append("..")
 
 from plebs import plebs, pockets
 from state import AppState
+from taverns import taverns
 
 app = FastAPI()
 state = AppState()
@@ -43,11 +44,18 @@ async def get_plebs(request: Request, number: int = 1):
     return plebs._plebs(number)
 
 
+@app.get("/taverns")
+async def get_taverns(request: Request, number: int = 1):
+    global state
+    client_host = request.client.host
+    state.log_visit(client_host, "taverns")
+    return tavers._taverns(number)
+
+
 @app.get("/visits")
 async def get_visits(request: Request):
     global state
     client_host = request.client.host
-    state.log_visit(client_host, "visits")
     return state.visits
 
 atexit.register(close_gracefully)

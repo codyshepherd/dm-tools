@@ -1,6 +1,6 @@
 name: dm-tools # you probably want to 'snapcraft register <name>'
 base: core18 # the base snap is the execution environment for this snap
-version: '1.3.1' # just for humans, typically '1.2+git' or '1.3.2'
+version: '1.4.0' # just for humans, typically '1.2+git' or '1.3.2'
 summary: Command-line tools for the lazy DM # 79 char long summary
 description: |
   dm-tools is a role-playing combat encounter tracker and NPC generator for
@@ -10,7 +10,7 @@ description: |
   items for NPCs, and several flavors of name generator algorithms.
 
   Invoke the different tools in your terminal by running: 
-  dm-tools.live-game, dm-tools.plebs, or dm-tools.pockets
+  dm-tools.live-game, dm-tools.plebs, dm-tools.pockets, or dm-tools.taverns,
   and make sure to make it full screen, otherwise it complains.  
 
   https://www.dm-tools.dev
@@ -41,6 +41,12 @@ apps:
    pockets:
        command: bin/pockets
        environment:
+         LC_ALL: C.UTF-8
+       plugs:
+         - home
+    taverns:
+      command: bin/taverns
+      environment:
          LC_ALL: C.UTF-8
        plugs:
          - home

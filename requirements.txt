@@ -6,3 +6,4 @@ petname
 pyyaml
 requests
 typing
+wonderwords
