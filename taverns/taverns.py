@@ -31,7 +31,9 @@ def tavern_name(**kwargs):
   gen_arg = kwargs.get('name_gen', 'adj_noun')
   gen_func = NAME_GEN_FUNCTIONS.get(gen_arg, name_gen.name_gen_adj_noun)
 
-  return gen_func(**kwargs)
+  name = gen_func(**kwargs)
+  capitalized_name = ' '.join([s.capitalize() for s in name.split()])
+  return capitalized_name
 
 
 def tavern_quest(**kwargs):
@@ -50,7 +52,6 @@ def tavern(**kwargs):
 
   for f in FUNCTIONS.keys():
     func = FUNCTIONS[f]
-    print(func)
     val = func(**kwargs)
     kwargs[f] = val
     t[f] = val

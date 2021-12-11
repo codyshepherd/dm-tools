@@ -2,7 +2,7 @@
   "swagger": "2.0",
   "info": {
     "description": "API for dm-tools content",
-    "version": "1.0.0",
+    "version": "1.4.0",
     "title": "dm-tools API",
     "contact": {
       "email": "cody.shepherd@gmail.com"
@@ -13,7 +13,7 @@
     }
   },
   "host": "virtserver.swaggerhub.com",
-  "basePath": "/codyshepherd/dm-tools/1.0.0",
+  "basePath": "/codyshepherd/dm-tools/1.4.0",
   "tags": [
     {
       "name": "admins",
@@ -58,8 +58,13 @@
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/PocketItem"
-              }
+                "type": "string"
+              },
+              "example": [
+                "box of rain",
+                "a hair doll",
+                "four glass marbles"
+              ]
             }
           },
           "400": {
@@ -106,11 +111,75 @@
           }
         }
       }
+    },
+    "/taverns": {
+      "get": {
+        "tags": [
+          "developers"
+        ],
+        "summary": "returns some number of tavern objects",
+        "description": "By passing in the appropriate options, you can request a number\nof taverns\n",
+        "operationId": "getTaverns",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "number",
+            "in": "query",
+            "description": "pass an optional number of items to return",
+            "required": false,
+            "type": "integer",
+            "maximum": 10,
+            "minimum": 1,
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "one or more tavern objects",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Tavern"
+              }
+            }
+          },
+          "400": {
+            "description": "bad input parameter"
+          }
+        }
+      }
     }
   },
   "definitions": {
-    "PocketItem": {
-      "type": "string"
+    "Tavern": {
+      "type": "object",
+      "required": [
+        "name",
+        "npcs",
+        "proprietor",
+        "quest"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "example": "Marie Curie"
+        },
+        "npcs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Pleb"
+          }
+        },
+        "proprietor": {
+          "$ref": "#/definitions/Pleb"
+        },
+        "quest": {
+          "type": "string",
+          "example": "This tavern has no doors or windows"
+        }
+      }
     },
     "Pleb": {
       "type": "object",
@@ -154,8 +223,13 @@
         },
         "items": {
           "type": "array",
+          "example": [
+            "box of rain",
+            "a hair doll",
+            "four glass marbles"
+          ],
           "items": {
-            "$ref": "#/definitions/PocketItem"
+            "type": "string"
           }
         },
         "profession": {
@@ -221,25 +295,15 @@
       }
     },
     "Personality": {
-      "required": [
-        "trait1",
-        "trait2",
-        "trait3"
-      ],
-      "properties": {
-        "trait1": {
-          "type": "string",
-          "example": "abrasive"
-        },
-        "trait2": {
-          "type": "string",
-          "example": "abrasive"
-        },
-        "trait3": {
-          "type": "string",
-          "example": "abrasive"
-        }
-      }
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "example": [
+        "abrasive",
+        "friendly",
+        "naive"
+      ]
     }
   }
 }

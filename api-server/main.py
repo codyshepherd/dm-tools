@@ -49,7 +49,7 @@ async def get_taverns(request: Request, number: int = 1):
     global state
     client_host = request.client.host
     state.log_visit(client_host, "taverns")
-    return tavers._taverns(number)
+    return taverns._taverns(number)
 
 
 @app.get("/visits")

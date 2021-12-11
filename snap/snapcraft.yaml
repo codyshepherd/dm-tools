@@ -44,9 +44,9 @@ apps:
          LC_ALL: C.UTF-8
        plugs:
          - home
-    taverns:
-      command: bin/taverns
-      environment:
+   taverns:
+       command: bin/taverns
+       environment:
          LC_ALL: C.UTF-8
        plugs:
          - home
