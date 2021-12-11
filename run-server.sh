@@ -2,7 +2,9 @@
 
 venv_name="dm-tools-server"
 
-/usr/bin/virtualenv -p $(which python3) $venv_name 
+dir=$(dirname $(which virtualenv))
+
+${dir}/virtualenv -p $(which python3) $venv_name
 source $venv_name/bin/activate
 
 pip install .

@@ -1,1 +1,2 @@
 include plebs/content/*.txt
+include taverns/content/*.txt
