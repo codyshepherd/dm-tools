@@ -1,60 +1,60 @@
-coworker is late for work
-family member recently died of pox
-expecting an important delivery
-new to the area
+has a coworker is late for work
+has a family member that recently died of pox
+is expecting an important delivery
+is new to the area
 hasn't been sleeping well
-parent of newborn child
+is the parent of a newborn child
 owes a large debt and fears arrest
 has come into large inheritance
 family's safety was recently threatened
 has been conscripted and must report for duty soon
-having marital troubles
-feuding with a local rival
+is having marital troubles
+is feuding with a local rival
 recently humiliated self at local tavern
-proud of a pupil's recent achievements
-recent offering to gods apparently rejected
+is proud of a pupil's recent achievements
+recently made an offering to gods that was apparently rejected
 hasn't heard from longtime penpal recently
-has contracted painful rash on leg
+has contracted a painful rash on leg
 worries this season's crop will not be harvested fast enough
 just saw a two-headed rat in an alley
-still drunk from last night's revelry
-severely hung over
-period is a week late
-pet cat just had a litter of kittens
-recently lost baking contest at county fair
+is still drunk from last night's revelry
+is severely hung over
+might be having a baby soon
+has a pet cat that just had a litter of kittens
+recently lost a baking contest at county fair
 has recently learned some simple magic
-trying to recruit for Herbalife
-late for a romantic rendezvous
+is trying to recruit for herbalife
+is late for a romantic rendezvous
 recently ruined a garment they are wearing
 is planning on proposing to partner
-caught in the middle of conflict between townsfolk
-trying to sell books written under pen name
+is caught in the middle of conflict between townsfolk
+is trying to sell books written under a pen name
 believes recent town ordinance to be unjust
-recently-opened case of expensive wine had gone bad
+recently opened a case of expensive wine and found it had gone bad
 accepts bribes
-house was burgled
+recently suffered a breakin at their house
 recently made a dubious investment
-expecting imminent arrival of a guest
+is expecting the imminent arrival of a guest
 has recently achieved a major career milestone
-disturbed by a recently-heard rumor about friend
-involved in a forbidden love affair
+is disturbed by a recently-heard rumor about friend
+is involved in a forbidden love affair
 recently joined a gang or cult
-very concerned with current events
-worried about lack of pay, as this is the slow season
+is very concerned with current events
+is worried about lack of pay, as this is the slow season
 forgot to eat breakfast today and is now hangry
 unknowingly wore same outfit as another villager today
 is finally fed up with a coworker and has resolved to confront them
 finished a really great book last night
 recently got a drastic haircut, and everyone has been commenting on it
-today is payday
+is excited because today is payday
 has just dealt with a particularly troublesome customer
 is secretly feeding wild animals that neighbors consider pests
 is a local legend, but the story of their astounding feat is a lie
 dreams constantly of adventure and escape from dull life
-has been visiting old woman in the woods; doesn't know she is a Hag
+has been visiting old woman in the woods; doesn't know she is a hag
 is slowly transforming into a snake because of a curse
 owes money to a local paragon, who is actually a loan shark
-child has fallen seriously ill
+has a child that has fallen seriously ill
 has recently begun to take care of elderly parents
 is searching for a patron to support their art career
 knows local history better than anyone alive
@@ -69,12 +69,76 @@ is holding a crying baby in their arms
 refuses to see a healer about chronic chest pain
 has a bad tooth that is causing great pain
 is really feeling the vibe today
-longtime crush recently agreed to a date
-still basking the glow of a recent town festival
+is elated because a longtime crush recently agreed to a date
+is still basking the glow of a recent town festival
 loves this time of year
-has recently taken over for an incompetant predecessor
+hates this time of year
+has recently taken over for an incompetent predecessor
 has been living in the shadow of a legendary predecessor for years
 has way too many responsibilities for one person
 is currently chasing after an escaped hen
 is an addict whose need must be satisfied before they can be of any use
 believes they saw an omen today, haven't decided for good or ill
+is settling for current romantic partner
+is pregnant but can’t remember who the father is
+is planning a party and must remove several spots from guest list
+daydreams about euthanizing aging parents
+stepped in poop and hasn’t realized it yet
+is trying to become a pick up artist
+is wearing ridiculous, revealing, non-functional armor
+just had a tooth break in their mouth
+just found out they are dating their cousin
+is taking a gap year between rigorous study programs
+is taking an experimental medication from local apothecary
+is tripping balls
+is currently trying to quit an addiction
+is currently in the first stages of an addiction
+is a vampire’s thrall, with a day job
+recently took a second job as a vampires thrall
+has acute athletes foot or jock itch
+thinks one of the players has cuckolded them
+really hates spouses pet and is looking for ways to get rid of it
+recently had an affair and doesn’t know how to handle it
+is worried their child is falling in with a bad crowd
+secretly doesn’t know how to read
+can’t get an infectious song out of their head, chance of spreading to players
+is afflicted by the dancing plague
+is in possession of a cursed item and wants it gone
+is a known fugitive in a nearby district
+is about to be fired from their job
+is aggressively straight-edge
+is being harassed by ex-boyfriend
+wants someone to cover their shift so they can take the day off
+has to go to the bathroom really bad
+claims to be able to smell the future
+only cares about money
+only cares about appearance
+is planning a wedding for their dog
+has been waking up in unexpected places
+has amassed a supply of the finest manure in the region
+saves everything in case it might be useful later
+thinks they’re really skilled at playing the recorder, but is not
+is allergic to something the party is carrying
+is obsessed with exercise
+secretly kills travelers when the opportunity arises
+is an undercover constable
+was recently gender-swapped by a magical force
+secretly worships tiamat
+has adopted a goblin child and is finding it more difficult than they imagined
+has a cat overpopulation problem
+is actually an awakened and polymorphed animal
+plans on spending next holiday in the feywild
+claims deja-vu upon seeing players
+has experienced deja-vu several times today
+has recently been wondering what it’s all about
+is covered in poison ivy rash
+is extra emotional today
+just didn't feel like getting out of bed today
+is looking for any opportunity to spend time away from their family
+has actually never traveled out of the region
+believes that the party fits into recent rumors about strangers
+is disturbed by letters from cousin about a never ending winter up north
+is hiding out from their past in the city of sigil
+will claim to have met drizzt do-urden
+doesn't know a dark sun from a dragon lance
+is weighing whether to make a large purchase
