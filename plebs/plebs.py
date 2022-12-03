@@ -4,10 +4,12 @@ import numpy
 import os
 import pathlib
 import random
+import sys
 import yaml
 
-from plebs.name_gen import name_gen
 from plebs.dice import roll
+from plebs.fvtt import fvtt_export
+from plebs.name_gen import name_gen
 from functools import reduce
 from itertools import chain
 
@@ -222,6 +224,8 @@ def _plebs(number: int=1, **kwargs):
               default=os.path.join(OUT_DIR, 'default-config.yaml'))
 @click.option('-y', '--yaml-dump', is_flag=True,
               help="Dump to yaml")
+@click.option('-e', '--export', is_flag=True, help="Export to Foundry VTT " \
+              "JSON format. Cannot be used with -n > 1")
 @click.option('-g', '--name-generator',
               type=click.Choice([
                   'alt',
@@ -233,7 +237,10 @@ def _plebs(number: int=1, **kwargs):
                ]),
               help="The algorithm to use for generating names",
               default='phoneme')
-def plebs(number, config_yaml, yaml_dump, name_generator):
+def plebs(number, config_yaml, yaml_dump, export, name_generator):
+    if number > 1:
+        print("Cannot export more than one pleb at a time.")
+        sys.exit(1)
     with open(config_yaml, 'r') as fh:
         config = yaml.safe_load(fh)
     if not os.path.exists(OUT_DIR):
@@ -252,6 +259,9 @@ def plebs(number, config_yaml, yaml_dump, name_generator):
     for i in range(number):
         race = numpy.random.choice(races, p=probs)
         p = pleb(race, **config)
+        if export:
+            print(fvtt_export(p))
+            return
         ps[p['name']] = p
 
     string = stringify(ps)
