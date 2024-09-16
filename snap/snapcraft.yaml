@@ -22,7 +22,6 @@ confinement: strict # use 'strict' once you have the right plugs and slots
 parts:
   dm-tools:
     plugin: python
-    python-version: python3
     source: .
 apps:
    live-game:
