@@ -26,7 +26,7 @@ setup(
     },
     zip_safe=False,
     platforms='any',
-    python_requires='>=3.8',
+    python_requires='>=3.10',
     install_requires=dependencies,
     entry_points={
         'console_scripts': [
